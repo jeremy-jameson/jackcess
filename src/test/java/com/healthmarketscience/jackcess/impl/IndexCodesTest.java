@@ -163,9 +163,9 @@ public class IndexCodesTest {
     // keep this so build doesn't fail if other tests are disabled
   }
 
-  // @Ignore
-  // @Test
-  public void x_testCreateIsoFile() throws Exception
+  @Ignore
+  @Test
+  public void testCreateIsoFile() throws Exception
   {
     Database db = create(Database.FileFormat.V2000, true);
 
@@ -182,9 +182,9 @@ public class IndexCodesTest {
     db.close();
   }
 
-  // @Ignore
-  // @Test
-  public void x_testCreateAltIsoFile() throws Exception
+  @Ignore
+  @Test
+  public void testCreateAltIsoFile() throws Exception
   {
     Database db = openCopy(Database.FileFormat.V2000, new File("/tmp/test_ind.mdb"), true);
 
@@ -200,9 +200,9 @@ public class IndexCodesTest {
     db.close();
   }
 
-  // @Ignore
-  // @Test
-  public void x_testWriteAllCodesMdb() throws Exception
+  @Ignore
+  @Test
+  public void testWriteAllCodesMdb() throws Exception
   {
     Database db = create(Database.FileFormat.V2000, true);
 
@@ -261,9 +261,9 @@ public class IndexCodesTest {
     db.close();
   }
 
-  // @Ignore
-  // @Test
-  public void x_testReadAllCodesMdb() throws Exception
+  @Ignore
+  @Test
+  public void testReadAllCodesMdb() throws Exception
   {
 //     Database db = openCopy(new File("/data2/jackcess_test/testAllIndexCodes.mdb"));
 //     Database db = openCopy(new File("/data2/jackcess_test/testAllIndexCodes_orig.mdb"));
@@ -316,9 +316,9 @@ public class IndexCodesTest {
     }
   }
 
-  // @Ignore
-  // @Test
-  public void x_testReadIsoMdb() throws Exception
+  @Ignore
+  @Test
+  public void testReadIsoMdb() throws Exception
   {
 //     Database db = open(new File("/tmp/test_ind.mdb"));
 //     Database db = open(new File("/tmp/test_ind2.mdb"));
@@ -340,9 +340,9 @@ public class IndexCodesTest {
     db.close();
   }
 
-  // @Ignore
-  // @Test
-  public void x_testReverseIsoMdb2010() throws Exception
+  @Ignore
+  @Test
+  public void testReverseIsoMdb2010() throws Exception
   {
     Database db = open(Database.FileFormat.V2010, new File("/data2/jackcess_test/testAllIndexCodes3_2010.accdb"));
 
@@ -521,9 +521,9 @@ public class IndexCodesTest {
     db.close();
   }
 
-  // @Ignore
-  // @Test
-  public void x_testReverseIsoMdb() throws Exception
+  @Ignore
+  @Test
+  public void testReverseIsoMdb() throws Exception
   {
     Database db = open(Database.FileFormat.V2000, new File("/data2/jackcess_test/testAllIndexCodes3.mdb"));
 
