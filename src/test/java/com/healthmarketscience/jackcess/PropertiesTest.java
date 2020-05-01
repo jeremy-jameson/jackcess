@@ -24,72 +24,70 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import static com.healthmarketscience.jackcess.Database.*;
 import com.healthmarketscience.jackcess.impl.DatabaseImpl;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 import com.healthmarketscience.jackcess.impl.PropertyMapImpl;
 import com.healthmarketscience.jackcess.impl.PropertyMaps;
 import com.healthmarketscience.jackcess.impl.TableImpl;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  * @author James Ahlborn
  */
-public class PropertiesTest extends TestCase
+public class PropertiesTest
 {
-
-  public PropertiesTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testPropertyMaps() throws Exception
   {
     PropertyMaps maps = new PropertyMaps(10, null, null, null);
-    assertTrue(maps.isEmpty());
-    assertEquals(0, maps.getSize());
-    assertFalse(maps.iterator().hasNext());
-    assertEquals(10, maps.getObjectId());
+    Assert.assertTrue(maps.isEmpty());
+    Assert.assertEquals(0, maps.getSize());
+    Assert.assertFalse(maps.iterator().hasNext());
+    Assert.assertEquals(10, maps.getObjectId());
 
     PropertyMapImpl defMap = maps.getDefault();
-    assertTrue(defMap.isEmpty());
-    assertEquals(0, defMap.getSize());
-    assertFalse(defMap.iterator().hasNext());
+    Assert.assertTrue(defMap.isEmpty());
+    Assert.assertEquals(0, defMap.getSize());
+    Assert.assertFalse(defMap.iterator().hasNext());
 
     PropertyMapImpl colMap = maps.get("testcol");
-    assertTrue(colMap.isEmpty());
-    assertEquals(0, colMap.getSize());
-    assertFalse(colMap.iterator().hasNext());
+    Assert.assertTrue(colMap.isEmpty());
+    Assert.assertEquals(0, colMap.getSize());
+    Assert.assertFalse(colMap.iterator().hasNext());
 
-    assertFalse(maps.isEmpty());
-    assertEquals(2, maps.getSize());
+    Assert.assertFalse(maps.isEmpty());
+    Assert.assertEquals(2, maps.getSize());
 
-    assertSame(defMap, maps.get(PropertyMaps.DEFAULT_NAME));
-    assertEquals(PropertyMaps.DEFAULT_NAME, defMap.getName());
-    assertSame(colMap, maps.get("TESTCOL"));
-    assertEquals("testcol", colMap.getName());
+    Assert.assertSame(defMap, maps.get(PropertyMaps.DEFAULT_NAME));
+    Assert.assertEquals(PropertyMaps.DEFAULT_NAME, defMap.getName());
+    Assert.assertSame(colMap, maps.get("TESTCOL"));
+    Assert.assertEquals("testcol", colMap.getName());
 
     defMap.put("foo", DataType.TEXT, "bar", false);
     defMap.put("baz", DataType.LONG, 13, true);
 
-    assertFalse(defMap.isEmpty());
-    assertEquals(2, defMap.getSize());
-    assertFalse(defMap.get("foo").isDdl());
-    assertTrue(defMap.get("baz").isDdl());
+    Assert.assertFalse(defMap.isEmpty());
+    Assert.assertEquals(2, defMap.getSize());
+    Assert.assertFalse(defMap.get("foo").isDdl());
+    Assert.assertTrue(defMap.get("baz").isDdl());
 
     colMap.put("buzz", DataType.BOOLEAN, Boolean.TRUE, true);
 
-    assertFalse(colMap.isEmpty());
-    assertEquals(1, colMap.getSize());
+    Assert.assertFalse(colMap.isEmpty());
+    Assert.assertEquals(1, colMap.getSize());
 
-    assertEquals("bar", defMap.getValue("foo"));
-    assertEquals("bar", defMap.getValue("FOO"));
-    assertNull(colMap.getValue("foo"));
-    assertEquals(13, defMap.get("baz").getValue());
-    assertEquals(Boolean.TRUE, colMap.getValue("Buzz"));
+    Assert.assertEquals("bar", defMap.getValue("foo"));
+    Assert.assertEquals("bar", defMap.getValue("FOO"));
+    Assert.assertNull(colMap.getValue("foo"));
+    Assert.assertEquals(13, defMap.get("baz").getValue());
+    Assert.assertEquals(Boolean.TRUE, colMap.getValue("Buzz"));
 
-    assertEquals("bar", defMap.getValue("foo", "blah"));
-    assertEquals("blah", defMap.getValue("bogus", "blah"));
+    Assert.assertEquals("bar", defMap.getValue("foo", "blah"));
+    Assert.assertEquals("blah", defMap.getValue("bogus", "blah"));
 
     List<PropertyMap.Property> props = new ArrayList<PropertyMap.Property>();
     for(PropertyMap map : maps) {
@@ -98,28 +96,30 @@ public class PropertiesTest extends TestCase
       }
     }
 
-    assertEquals(Arrays.asList(defMap.get("foo"), defMap.get("baz"),
+    Assert.assertEquals(Arrays.asList(defMap.get("foo"), defMap.get("baz"),
                                colMap.get("buzz")), props);
   }
 
+  @Test
   public void testInferTypes() throws Exception
   {
     PropertyMaps maps = new PropertyMaps(10, null, null, null);
     PropertyMap defMap = maps.getDefault();
 
-    assertEquals(DataType.TEXT,
+    Assert.assertEquals(DataType.TEXT,
                  defMap.put(PropertyMap.FORMAT_PROP, null).getType());
-    assertEquals(DataType.BOOLEAN,
+    Assert.assertEquals(DataType.BOOLEAN,
                  defMap.put(PropertyMap.REQUIRED_PROP, null).getType());
 
-    assertEquals(DataType.TEXT,
+    Assert.assertEquals(DataType.TEXT,
                  defMap.put("strprop", "this is a string").getType());
-    assertEquals(DataType.BOOLEAN,
+    Assert.assertEquals(DataType.BOOLEAN,
                  defMap.put("boolprop", true).getType());
-    assertEquals(DataType.LONG,
+    Assert.assertEquals(DataType.LONG,
                  defMap.put("intprop", 37).getType());
   }
 
+  @Test
   public void testReadProperties() throws Exception
   {
     byte[] nameMapBytes = null;
@@ -128,66 +128,67 @@ public class PropertiesTest extends TestCase
       Database db = open(testDb);
 
       TableImpl t = (TableImpl)db.getTable("Table1");
-      assertEquals(t.getTableDefPageNumber(),
+      Assert.assertEquals(t.getTableDefPageNumber(),
                    t.getPropertyMaps().getObjectId());
       PropertyMap tProps = t.getProperties();
-      assertEquals(PropertyMaps.DEFAULT_NAME, tProps.getName());
+      Assert.assertEquals(PropertyMaps.DEFAULT_NAME, tProps.getName());
       int expectedNumProps = 3;
       if(db.getFileFormat() != Database.FileFormat.V1997) {
-        assertEquals("{5A29A676-1145-4D1A-AE47-9F5415CDF2F1}",
+        Assert.assertEquals("{5A29A676-1145-4D1A-AE47-9F5415CDF2F1}",
                      tProps.getValue(PropertyMap.GUID_PROP));
         if(nameMapBytes == null) {
           nameMapBytes = (byte[])tProps.getValue("NameMap");
         } else {
-          assertTrue(Arrays.equals(nameMapBytes,
+          Assert.assertTrue(Arrays.equals(nameMapBytes,
                                    (byte[])tProps.getValue("NameMap")));
         }
         expectedNumProps += 2;
       }
-      assertEquals(expectedNumProps, tProps.getSize());
-      assertEquals((byte)0, tProps.getValue("Orientation"));
-      assertEquals(Boolean.FALSE, tProps.getValue("OrderByOn"));
-      assertEquals((byte)2, tProps.getValue("DefaultView"));
+      Assert.assertEquals(expectedNumProps, tProps.getSize());
+      Assert.assertEquals((byte)0, tProps.getValue("Orientation"));
+      Assert.assertEquals(Boolean.FALSE, tProps.getValue("OrderByOn"));
+      Assert.assertEquals((byte)2, tProps.getValue("DefaultView"));
 
       PropertyMap colProps = t.getColumn("A").getProperties();
-      assertEquals("A", colProps.getName());
+      Assert.assertEquals("A", colProps.getName());
       expectedNumProps = 9;
       if(db.getFileFormat() != Database.FileFormat.V1997) {
-        assertEquals("{E9EDD90C-CE55-4151-ABE1-A1ACE1007515}",
+        Assert.assertEquals("{E9EDD90C-CE55-4151-ABE1-A1ACE1007515}",
                      colProps.getValue(PropertyMap.GUID_PROP));
         ++expectedNumProps;
       }
-      assertEquals(expectedNumProps, colProps.getSize());
-      assertEquals((short)-1, colProps.getValue("ColumnWidth"));
-      assertEquals((short)0, colProps.getValue("ColumnOrder"));
-      assertEquals(Boolean.FALSE, colProps.getValue("ColumnHidden"));
-      assertEquals(Boolean.FALSE,
+      Assert.assertEquals(expectedNumProps, colProps.getSize());
+      Assert.assertEquals((short)-1, colProps.getValue("ColumnWidth"));
+      Assert.assertEquals((short)0, colProps.getValue("ColumnOrder"));
+      Assert.assertEquals(Boolean.FALSE, colProps.getValue("ColumnHidden"));
+      Assert.assertEquals(Boolean.FALSE,
                    colProps.getValue(PropertyMap.REQUIRED_PROP));
-      assertEquals(Boolean.FALSE,
+      Assert.assertEquals(Boolean.FALSE,
                    colProps.getValue(PropertyMap.ALLOW_ZERO_LEN_PROP));
-      assertEquals((short)109, colProps.getValue("DisplayControl"));
-      assertEquals(Boolean.TRUE, colProps.getValue("UnicodeCompression"));
-      assertEquals((byte)0, colProps.getValue("IMEMode"));
-      assertEquals((byte)3, colProps.getValue("IMESentenceMode"));
+      Assert.assertEquals((short)109, colProps.getValue("DisplayControl"));
+      Assert.assertEquals(Boolean.TRUE, colProps.getValue("UnicodeCompression"));
+      Assert.assertEquals((byte)0, colProps.getValue("IMEMode"));
+      Assert.assertEquals((byte)3, colProps.getValue("IMESentenceMode"));
 
       PropertyMap dbProps = db.getDatabaseProperties();
-      assertTrue(((String)dbProps.getValue(PropertyMap.ACCESS_VERSION_PROP))
+      Assert.assertTrue(((String)dbProps.getValue(PropertyMap.ACCESS_VERSION_PROP))
                  .matches("[0-9]{2}[.][0-9]{2}"));
 
       PropertyMap sumProps = db.getSummaryProperties();
-      assertEquals(3, sumProps.getSize());
-      assertEquals("test", sumProps.getValue(PropertyMap.TITLE_PROP));
-      assertEquals("tmccune", sumProps.getValue(PropertyMap.AUTHOR_PROP));
-      assertEquals("Health Market Science", sumProps.getValue(PropertyMap.COMPANY_PROP));
+      Assert.assertEquals(3, sumProps.getSize());
+      Assert.assertEquals("test", sumProps.getValue(PropertyMap.TITLE_PROP));
+      Assert.assertEquals("tmccune", sumProps.getValue(PropertyMap.AUTHOR_PROP));
+      Assert.assertEquals("Health Market Science", sumProps.getValue(PropertyMap.COMPANY_PROP));
 
       PropertyMap userProps = db.getUserDefinedProperties();
-      assertEquals(1, userProps.getSize());
-      assertEquals(Boolean.TRUE, userProps.getValue("ReplicateProject"));
+      Assert.assertEquals(1, userProps.getSize());
+      Assert.assertEquals(Boolean.TRUE, userProps.getValue("ReplicateProject"));
 
       db.close();
     }
   }
 
+  @Test
   public void testParseProperties() throws Exception
   {
     for(FileFormat ff : SUPPORTED_FILEFORMATS_FOR_READ) {
@@ -204,8 +205,8 @@ public class PropertiesTest extends TestCase
         Database db = open(ff, f);
 
         PropertyMap dbProps = db.getDatabaseProperties();
-        assertFalse(dbProps.isEmpty());
-        assertTrue(((String)dbProps.getValue(PropertyMap.ACCESS_VERSION_PROP))
+        Assert.assertFalse(dbProps.isEmpty());
+        Assert.assertTrue(((String)dbProps.getValue(PropertyMap.ACCESS_VERSION_PROP))
                    .matches("[0-9]{2}[.][0-9]{2}"));
 
         for(Row row : ((DatabaseImpl)db).getSystemCatalog()) {
@@ -215,11 +216,11 @@ public class PropertiesTest extends TestCase
               id, null);
           int byteLen = ((propBytes != null) ? propBytes.length : 0);
           if(byteLen == 0) {
-            assertTrue(propMaps.isEmpty());
+            Assert.assertTrue(propMaps.isEmpty());
           } else if(propMaps.isEmpty()) {
-            assertTrue(byteLen < 80);
+            Assert.assertTrue(byteLen < 80);
           } else {
-            assertTrue(byteLen > 0);
+            Assert.assertTrue(byteLen > 0);
           }
         }
 
@@ -228,6 +229,7 @@ public class PropertiesTest extends TestCase
     }
   }
 
+  @Test
   public void testWriteProperties() throws Exception
   {
     for(TestDB testDb : SUPPORTED_DBS_TEST) {
@@ -254,13 +256,14 @@ public class PropertiesTest extends TestCase
         checkProperties(propMap, propMap2);
       }
 
-      assertFalse(iter.hasNext());
-      assertFalse(iter2.hasNext());
+      Assert.assertFalse(iter.hasNext());
+      Assert.assertFalse(iter2.hasNext());
 
       db.close();
     }
   }
 
+  @Test
   public void testModifyProperties() throws Exception
   {
     for(TestDB testDb : SUPPORTED_DBS_TEST) {
@@ -286,9 +289,9 @@ public class PropertiesTest extends TestCase
       PropertyMap fProps = t.getColumn("F").getProperties();
       PropertyMap dProps = t.getColumn("D").getProperties();
 
-      assertFalse((Boolean)cProps.getValue(PropertyMap.REQUIRED_PROP));
-      assertEquals("0", fProps.getValue(PropertyMap.DEFAULT_VALUE_PROP));
-      assertEquals((short)109, dProps.getValue("DisplayControl"));
+      Assert.assertFalse((Boolean)cProps.getValue(PropertyMap.REQUIRED_PROP));
+      Assert.assertEquals("0", fProps.getValue(PropertyMap.DEFAULT_VALUE_PROP));
+      Assert.assertEquals((short)109, dProps.getValue("DisplayControl"));
 
       cProps.put(PropertyMap.REQUIRED_PROP, DataType.BOOLEAN, true);
       fProps.get(PropertyMap.DEFAULT_VALUE_PROP).setValue("42");
@@ -306,9 +309,9 @@ public class PropertiesTest extends TestCase
       fProps = t.getColumn("F").getProperties();
       dProps = t.getColumn("D").getProperties();
 
-      assertFalse((Boolean)cProps.getValue(PropertyMap.REQUIRED_PROP));
-      assertEquals("0", fProps.getValue(PropertyMap.DEFAULT_VALUE_PROP));
-      assertEquals((short)109, dProps.getValue("DisplayControl"));
+      Assert.assertFalse((Boolean)cProps.getValue(PropertyMap.REQUIRED_PROP));
+      Assert.assertEquals("0", fProps.getValue(PropertyMap.DEFAULT_VALUE_PROP));
+      Assert.assertEquals((short)109, dProps.getValue("DisplayControl"));
 
       checkProperties(origCProps, cProps);
       checkProperties(origFProps, fProps);
@@ -333,9 +336,9 @@ public class PropertiesTest extends TestCase
       fProps = t.getColumn("F").getProperties();
       dProps = t.getColumn("D").getProperties();
 
-      assertTrue((Boolean)cProps.getValue(PropertyMap.REQUIRED_PROP));
-      assertEquals("42", fProps.getValue(PropertyMap.DEFAULT_VALUE_PROP));
-      assertNull(dProps.getValue("DisplayControl"));
+      Assert.assertTrue((Boolean)cProps.getValue(PropertyMap.REQUIRED_PROP));
+      Assert.assertEquals("42", fProps.getValue(PropertyMap.DEFAULT_VALUE_PROP));
+      Assert.assertNull(dProps.getValue("DisplayControl"));
 
       cProps.put(PropertyMap.REQUIRED_PROP, DataType.BOOLEAN, false);
       fProps.get(PropertyMap.DEFAULT_VALUE_PROP).setValue("0");
@@ -349,6 +352,7 @@ public class PropertiesTest extends TestCase
     }
   }
 
+  @Test
   public void testCreateDbProperties() throws Exception
   {
     for(FileFormat ff : SUPPORTED_FILEFORMATS) {
@@ -383,28 +387,29 @@ public class PropertiesTest extends TestCase
 
       db = new DatabaseBuilder(file).open();
 
-      assertEquals("123", db.getUserDefinedProperties().getValue("testing"));
+      Assert.assertEquals("123", db.getUserDefinedProperties().getValue("testing"));
 
       t = db.getTable("Test");
 
-      assertEquals(Boolean.TRUE,
+      Assert.assertEquals(Boolean.TRUE,
                    t.getProperties().getValue("awesome_table"));
 
       Column c = t.getColumn("id");
-      assertEquals(Boolean.TRUE,
+      Assert.assertEquals(Boolean.TRUE,
                    c.getProperties().getValue(PropertyMap.REQUIRED_PROP));
-      assertEquals("{" + u1.toString().toUpperCase() + "}",
+      Assert.assertEquals("{" + u1.toString().toUpperCase() + "}",
                    c.getProperties().getValue(PropertyMap.GUID_PROP));
 
       c = t.getColumn("data");
-      assertEquals(Boolean.FALSE,
+      Assert.assertEquals(Boolean.FALSE,
                    c.getProperties().getValue(PropertyMap.ALLOW_ZERO_LEN_PROP));
-      assertEquals("{" + u2.toString().toUpperCase() + "}",
+      Assert.assertEquals("{" + u2.toString().toUpperCase() + "}",
                    c.getProperties().getValue(PropertyMap.GUID_PROP));
 
     }
   }
 
+  @Test
   public void testEnforceProperties() throws Exception
   {
     for(final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -422,7 +427,7 @@ public class PropertiesTest extends TestCase
 
       try {
         t.addRow(Column.AUTO_NUMBER, null);
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException expected) {
         // success
       }
@@ -452,7 +457,7 @@ public class PropertiesTest extends TestCase
 
       try {
         t.addRow(Column.AUTO_NUMBER, "");
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException expected) {
         // success
       }
@@ -487,14 +492,14 @@ public class PropertiesTest extends TestCase
 
       try {
         t.addRow(Column.AUTO_NUMBER, "");
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException expected) {
         // success
       }
 
       try {
         t.addRow(Column.AUTO_NUMBER, null);
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException expected) {
         // success
       }
@@ -515,6 +520,7 @@ public class PropertiesTest extends TestCase
     }
   }
 
+  @Test
   public void testEnumValues() throws Exception
   {
     PropertyMaps maps = new PropertyMaps(10, null, null, null);
@@ -524,27 +530,27 @@ public class PropertiesTest extends TestCase
     colMap.put(PropertyMap.DISPLAY_CONTROL_PROP,
                PropertyMap.DisplayControl.TEXT_BOX);
 
-    assertEquals(PropertyMap.DisplayControl.TEXT_BOX.getValue(),
+    Assert.assertEquals(PropertyMap.DisplayControl.TEXT_BOX.getValue(),
                  colMap.getValue(PropertyMap.DISPLAY_CONTROL_PROP));
   }
 
   private static void checkProperties(PropertyMap propMap1,
                                       PropertyMap propMap2)
   {
-    assertEquals(propMap1.getSize(), propMap2.getSize());
+    Assert.assertEquals(propMap1.getSize(), propMap2.getSize());
     for(PropertyMap.Property prop : propMap1) {
       PropertyMap.Property prop2 = propMap2.get(prop.getName());
 
-      assertEquals(prop.getName(), prop2.getName());
-      assertEquals(prop.getType(), prop2.getType());
+      Assert.assertEquals(prop.getName(), prop2.getName());
+      Assert.assertEquals(prop.getType(), prop2.getType());
 
       Object v1 = prop.getValue();
       Object v2 = prop2.getValue();
 
       if(v1 instanceof byte[]) {
-        assertTrue(Arrays.equals((byte[])v1, (byte[])v2));
+        Assert.assertTrue(Arrays.equals((byte[])v1, (byte[])v2));
       } else {
-        assertEquals(v1, v2);
+        Assert.assertEquals(v1, v2);
       }
     }
   }

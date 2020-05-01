@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.Cursor;
@@ -36,19 +39,14 @@ import com.healthmarketscience.jackcess.TableBuilder;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 import com.healthmarketscience.jackcess.util.RowFilterTest;
-import junit.framework.TestCase;
 
 /**
  *
  * @author James Ahlborn
  */
-public class DatabaseReadWriteTest extends TestCase
+public class DatabaseReadWriteTest
 {
-
-  public DatabaseReadWriteTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test  
   public void testWriteAndRead() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -57,6 +55,7 @@ public class DatabaseReadWriteTest extends TestCase
     }
   }
 
+  @Test
   public void testWriteAndReadInMem() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = createMem(fileFormat);
@@ -81,17 +80,18 @@ public class DatabaseReadWriteTest extends TestCase
       }
       for (int i = 0; i < count; i++) {
         Map<String, Object> readRow = table.getNextRow();
-        assertEquals(row[0], readRow.get("A"));
-        assertEquals(row[1], readRow.get("B"));
-        assertEquals(row[2], readRow.get("C"));
-        assertEquals(row[3], readRow.get("D"));
-        assertEquals(row[4], readRow.get("E"));
-        assertEquals(row[5], readRow.get("F"));
-        assertEquals(row[6], readRow.get("G"));
-        assertEquals(row[7], readRow.get("H"));
+        Assert.assertEquals(row[0], readRow.get("A"));
+        Assert.assertEquals(row[1], readRow.get("B"));
+        Assert.assertEquals(row[2], readRow.get("C"));
+        Assert.assertEquals(row[3], readRow.get("D"));
+        Assert.assertEquals(row[4], readRow.get("E"));
+        Assert.assertEquals(row[5], readRow.get("F"));
+        Assert.assertEquals(row[6], readRow.get("G"));
+        Assert.assertEquals(row[7], readRow.get("H"));
       }
   }
 
+  @Test
   public void testWriteAndReadInBatch() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = createMem(fileFormat);
@@ -106,20 +106,21 @@ public class DatabaseReadWriteTest extends TestCase
       table.addRows(rows);
       for (int i = 0; i < count; i++) {
         Map<String, Object> readRow = table.getNextRow();
-        assertEquals(row[0], readRow.get("A"));
-        assertEquals(row[1], readRow.get("B"));
-        assertEquals(row[2], readRow.get("C"));
-        assertEquals(row[3], readRow.get("D"));
-        assertEquals(row[4], readRow.get("E"));
-        assertEquals(row[5], readRow.get("F"));
-        assertEquals(row[6], readRow.get("G"));
-        assertEquals(row[7], readRow.get("H"));
+        Assert.assertEquals(row[0], readRow.get("A"));
+        Assert.assertEquals(row[1], readRow.get("B"));
+        Assert.assertEquals(row[2], readRow.get("C"));
+        Assert.assertEquals(row[3], readRow.get("D"));
+        Assert.assertEquals(row[4], readRow.get("E"));
+        Assert.assertEquals(row[5], readRow.get("F"));
+        Assert.assertEquals(row[6], readRow.get("G"));
+        Assert.assertEquals(row[7], readRow.get("H"));
       }
 
       db.close();
     }
   }
 
+  @Test
   public void testUpdateRow() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -142,7 +143,7 @@ public class DatabaseReadWriteTest extends TestCase
       c.moveNextRows(2);
       Map<String,Object> row = c.getCurrentRow();
 
-      assertEquals(createExpectedRow("name", "row1",
+      Assert.assertEquals(createExpectedRow("name", "row1",
                                      "id", 2,
                                      "data", "initial data"),
                    row);
@@ -151,8 +152,8 @@ public class DatabaseReadWriteTest extends TestCase
           "name", Column.KEEP_VALUE,
           "id", Column.AUTO_NUMBER,
           "data", "new data");
-      assertSame(newRow, c.updateCurrentRowFromMap(newRow));
-      assertEquals(createExpectedRow("name", "row1",
+      Assert.assertSame(newRow, c.updateCurrentRowFromMap(newRow));
+      Assert.assertEquals(createExpectedRow("name", "row1",
                                      "id", 2,
                                      "data", "new data"),
                    newRow);
@@ -160,7 +161,7 @@ public class DatabaseReadWriteTest extends TestCase
       c.moveNextRows(3);
       row = c.getCurrentRow();
 
-      assertEquals(createExpectedRow("name", "row4",
+      Assert.assertEquals(createExpectedRow("name", "row4",
                                      "id", 5,
                                      "data", "initial data"),
                    row);
@@ -171,7 +172,7 @@ public class DatabaseReadWriteTest extends TestCase
       c.moveNextRows(2);
       row = c.getCurrentRow();
 
-      assertEquals(createExpectedRow("name", "row1",
+      Assert.assertEquals(createExpectedRow("name", "row1",
                                      "id", 2,
                                      "data", "new data"),
                    row);
@@ -179,7 +180,7 @@ public class DatabaseReadWriteTest extends TestCase
       c.moveNextRows(3);
       row = c.getCurrentRow();
 
-      assertEquals(createExpectedRow("name", "row4",
+      Assert.assertEquals(createExpectedRow("name", "row4",
                                      "id", 5,
                                      "data", "a larger amount of new data"),
                    row);
@@ -195,7 +196,7 @@ public class DatabaseReadWriteTest extends TestCase
       c.moveNextRows(9);
       row = c.getCurrentRow();
 
-      assertEquals(createExpectedRow("name", "row8",
+      Assert.assertEquals(createExpectedRow("name", "row8",
                                      "id", 9,
                                      "data", "initial data"),
                    row);
@@ -208,32 +209,33 @@ public class DatabaseReadWriteTest extends TestCase
       c.moveNextRows(9);
       row = c.getCurrentRow();
 
-      assertEquals(createExpectedRow("name", "row8",
+      Assert.assertEquals(createExpectedRow("name", "row8",
                                      "id", 9,
                                      "data", newText),
                    row);
 
       List<Row> rows = RowFilterTest.toList(t);
-      assertEquals(50, rows.size());
+      Assert.assertEquals(50, rows.size());
 
       for(Row r : rows) {
         r.put("data", "final data " + r.get("id"));
       }
 
       for(Row r : rows) {
-        assertSame(r, t.updateRow(r));
+        Assert.assertSame(r, t.updateRow(r));
       }
 
       t.reset();
 
       for(Row r : t) {
-        assertEquals("final data " + r.get("id"), r.get("data"));
+        Assert.assertEquals("final data " + r.get("id"), r.get("data"));
       }
 
       db.close();
     }
   }
 
+  @Test
   public void testDateMath()
   {
     long now = System.currentTimeMillis();
@@ -257,14 +259,14 @@ public class DatabaseReadWriteTest extends TestCase
         time += timeStep) {
       double accTime = ColumnImpl.toLocalDateDouble(time);
       long newTime = ColumnImpl.fromLocalDateDouble(accTime);
-      assertEquals(time, newTime);
+      Assert.assertEquals(time, newTime);
 
       Instant inst = Instant.ofEpochMilli(time);
       LocalDateTime ldt = LocalDateTime.ofInstant(inst, ZoneOffset.UTC);
 
       accTime = ColumnImpl.toDateDouble(ldt);
       LocalDateTime newLdt = ColumnImpl.ldtFromLocalDateDouble(accTime);
-      assertEquals(ldt, newLdt);
+      Assert.assertEquals(ldt, newLdt);
     }
   }
 }

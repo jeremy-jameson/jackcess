@@ -22,6 +22,9 @@ import java.util.Locale;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.expr.EvalConfig;
 import com.healthmarketscience.jackcess.expr.EvalContext;
 import com.healthmarketscience.jackcess.expr.Function;
@@ -31,7 +34,6 @@ import com.healthmarketscience.jackcess.expr.Value;
 import com.healthmarketscience.jackcess.impl.expr.DefaultFunctions;
 import com.healthmarketscience.jackcess.impl.expr.FunctionSupport;
 import com.healthmarketscience.jackcess.impl.expr.ValueSupport;
-import junit.framework.TestCase;
 
 import static com.healthmarketscience.jackcess.Database.*;
 import static com.healthmarketscience.jackcess.TestUtil.*;
@@ -41,13 +43,9 @@ import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
  *
  * @author James Ahlborn
  */
-public class PropertyExpressionTest extends TestCase
+public class PropertyExpressionTest
 {
-
-  public PropertyExpressionTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testDefaultValue() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -113,6 +111,7 @@ public class PropertyExpressionTest extends TestCase
     }
   }
 
+  @Test
   public void testCalculatedValue() throws Exception
   {
     Database db = create(FileFormat.V2016);
@@ -157,6 +156,7 @@ public class PropertyExpressionTest extends TestCase
     db.close();
   }
 
+  @Test
   public void testColumnValidator() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -179,18 +179,18 @@ public class PropertyExpressionTest extends TestCase
 
       try {
         t.addRow(Column.AUTO_NUMBER, 42, 20);
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException ive) {
         // success
-        assertTrue(ive.getMessage().contains("You failed"));
+        Assert.assertTrue(ive.getMessage().contains("You failed"));
       }
 
       try {
         t.addRow(Column.AUTO_NUMBER, 3, 8);
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException ive) {
         // success
-        assertFalse(ive.getMessage().contains("You failed"));
+        Assert.assertFalse(ive.getMessage().contains("You failed"));
       }
 
       t.addRow(Column.AUTO_NUMBER, 54, 9);
@@ -201,10 +201,10 @@ public class PropertyExpressionTest extends TestCase
 
       try {
         t.addRow(Column.AUTO_NUMBER, 42, 200);
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException ive) {
         // success
-        assertTrue(ive.getMessage().contains("Too big"));
+        Assert.assertTrue(ive.getMessage().contains("Too big"));
       }
 
       t.addRow(Column.AUTO_NUMBER, 1, 9);
@@ -230,6 +230,7 @@ public class PropertyExpressionTest extends TestCase
     }
   }
 
+  @Test
   public void testRowValidator() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -250,10 +251,10 @@ public class PropertyExpressionTest extends TestCase
 
       try {
         t.addRow(Column.AUTO_NUMBER, 1, 20);
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException ive) {
         // success
-        assertTrue(ive.getMessage().contains("You failed"));
+        Assert.assertTrue(ive.getMessage().contains("You failed"));
       }
 
       t.addRow(Column.AUTO_NUMBER, 54, 9);
@@ -263,10 +264,10 @@ public class PropertyExpressionTest extends TestCase
 
       try {
         t.addRow(Column.AUTO_NUMBER, 42, 200);
-        fail("InvalidValueException should have been thrown");
+        Assert.fail("InvalidValueException should have been thrown");
       } catch(InvalidValueException ive) {
         // success
-        assertTrue(ive.getMessage().contains("Too big"));
+        Assert.assertTrue(ive.getMessage().contains("Too big"));
       }
 
       t.addRow(Column.AUTO_NUMBER, 1, 9);
@@ -292,7 +293,8 @@ public class PropertyExpressionTest extends TestCase
     }
   }
 
-  public static void testCustomEvalConfig() throws Exception
+  @Test
+  public void testCustomEvalConfig() throws Exception
   {
     TemporalConfig tempConf = new TemporalConfig("[uuuu/]M/d",
                                                  "uuuu-MMM-d",
@@ -339,11 +341,11 @@ public class PropertyExpressionTest extends TestCase
 
       Row row = t.iterator().next();
 
-      assertEquals(1, row.get("id"));
-      assertEquals("FOO_someVal", row.get("data1"));
-      assertTrue(((String)row.get("data2"))
+      Assert.assertEquals(1, row.get("id"));
+      Assert.assertEquals("FOO_someVal", row.get("data1"));
+      Assert.assertTrue(((String)row.get("data2"))
                  .matches("\\d{4}/\\d{1,2}/\\d{1,2}"));
-      assertTrue(((String)row.get("data3"))
+      Assert.assertTrue(((String)row.get("data3"))
                  .matches("\\d{2}.\\d{2}.\\d{2} (AM|PM)"));
 
       db.close();

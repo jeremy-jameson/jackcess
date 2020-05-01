@@ -16,7 +16,8 @@ limitations under the License.
 
 package com.healthmarketscience.jackcess;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 import com.healthmarketscience.jackcess.impl.IndexImpl;
@@ -24,25 +25,22 @@ import com.healthmarketscience.jackcess.impl.IndexImpl;
 /**
  * @author James Ahlborn
  */
-public class CursorBuilderTest extends TestCase {
-
-  public CursorBuilderTest(String name) throws Exception {
-    super(name);
-  }
+public class CursorBuilderTest {
 
   private static void assertCursor(
       Cursor expected, Cursor found)
   {
-    assertSame(expected.getTable(), found.getTable());
+    Assert.assertSame(expected.getTable(), found.getTable());
     if(expected instanceof IndexCursor) {
-      assertSame(((IndexCursor)expected).getIndex(), 
+      Assert.assertSame(((IndexCursor)expected).getIndex(), 
                  ((IndexCursor)found).getIndex());
     }
 
-    assertEquals(expected.getSavepoint().getCurrentPosition(),
+    Assert.assertEquals(expected.getSavepoint().getCurrentPosition(),
                  found.getSavepoint().getCurrentPosition());
   }
   
+  @Test
   public void test() throws Exception
   {
     for (final TestDB indexCursorDB : CursorTest.INDEX_CURSOR_DBS) {
@@ -71,7 +69,7 @@ public class CursorBuilderTest extends TestCase {
       try {
         new CursorBuilder(table)
           .setIndexByName("foo");
-        fail("IllegalArgumentException should have been thrown");
+        Assert.fail("IllegalArgumentException should have been thrown");
       } catch(IllegalArgumentException ignored) {
         // success
       }
@@ -85,7 +83,7 @@ public class CursorBuilderTest extends TestCase {
       try {
         new CursorBuilder(table)
           .setIndexByColumns(table.getColumn("value"));
-        fail("IllegalArgumentException should have been thrown");
+        Assert.fail("IllegalArgumentException should have been thrown");
       } catch(IllegalArgumentException ignored) {
         // success
       }
@@ -93,7 +91,7 @@ public class CursorBuilderTest extends TestCase {
       try {
         new CursorBuilder(table)
           .setIndexByColumns(table.getColumn("id"), table.getColumn("value"));
-        fail("IllegalArgumentException should have been thrown");
+        Assert.fail("IllegalArgumentException should have been thrown");
       } catch(IllegalArgumentException ignored) {
         // success
       }

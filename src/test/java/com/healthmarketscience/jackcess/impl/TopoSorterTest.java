@@ -23,19 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  *
  * @author James Ahlborn
  */
-public class TopoSorterTest extends TestCase
+public class TopoSorterTest
 {
-
-  public TopoSorterTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testTopoSort() throws Exception
   {
     doTopoTest(Arrays.asList("A", "B", "C"),
@@ -52,20 +49,20 @@ public class TopoSorterTest extends TestCase
                  "B", "C",
                  "A", "B",
                  "C", "A");
-      fail("IllegalStateException should have been thrown");
+      Assert.fail("IllegalStateException should have been thrown");
     } catch(IllegalStateException expected) {
       // success
-      assertTrue(expected.getMessage().startsWith("Cycle"));
+      Assert.assertTrue(expected.getMessage().startsWith("Cycle"));
     }
 
     try {
       doTopoTest(Arrays.asList("B", "A", "C"),
                  Arrays.asList("C", "B", "A"),
                  "B", "D");
-      fail("IllegalStateException should have been thrown");
+      Assert.fail("IllegalStateException should have been thrown");
     } catch(IllegalStateException expected) {
       // success
-      assertTrue(expected.getMessage().startsWith("Unknown descendent"));
+      Assert.assertTrue(expected.getMessage().startsWith("Unknown descendent"));
     }
 
     doTopoTest(Arrays.asList("B", "D", "A", "C"),
@@ -117,7 +114,7 @@ public class TopoSorterTest extends TestCase
 
     tsorter.sort();
 
-    assertEquals(expected, values);
+    Assert.assertEquals(expected, values);
 
 
     values = new ArrayList<String>();
@@ -133,7 +130,7 @@ public class TopoSorterTest extends TestCase
     List<String> expectedReverse = new ArrayList<String>(expected);
     Collections.reverse(expectedReverse);
 
-    assertEquals(expectedReverse, values);
+    Assert.assertEquals(expectedReverse, values);
   }
 
   private static class TestTopoSorter extends TopoSorter<String>

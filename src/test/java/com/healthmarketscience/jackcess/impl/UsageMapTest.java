@@ -5,13 +5,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.DataType;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 
@@ -20,8 +22,9 @@ import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
  *         Date: Mar 5, 2010
  *         Time: 2:21:22 PM
  */
-public final class UsageMapTest extends TestCase {
+public final class UsageMapTest {
 
+  @Test
   public void testRead() throws Exception {
     for (final TestDB testDB : SUPPORTED_DBS_TEST) {
       final int expectedFirstPage;
@@ -55,12 +58,13 @@ public final class UsageMapTest extends TestCase {
                                             PageChannel.PAGE_GLOBAL_USAGE_MAP,
                                             PageChannel.ROW_GLOBAL_USAGE_MAP,
                                             true);
-    assertEquals("Unexpected FirstPageNumber.", expectedFirstPage, 
+    Assert.assertEquals("Unexpected FirstPageNumber.", expectedFirstPage, 
                  usageMap.getFirstPageNumber());
-    assertEquals("Unexpected LastPageNumber.", expectedLastPage, 
+    Assert.assertEquals("Unexpected LastPageNumber.", expectedLastPage, 
                  usageMap.getLastPageNumber());
   }
 
+  @Test
   public void testGobalReferenceUsageMap() throws Exception
   {
     Database db = openCopy(

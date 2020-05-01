@@ -24,7 +24,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.NonWritableChannelException;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.healthmarketscience.jackcess.TestUtil;
 
@@ -32,70 +33,68 @@ import com.healthmarketscience.jackcess.TestUtil;
  *
  * @author James Ahlborn
  */
-public class MemFileChannelTest extends TestCase 
+public class MemFileChannelTest
 {
 
-  public MemFileChannelTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testReadOnlyChannel() throws Exception
   {
     File testFile = new File("src/test/data/V1997/compIndexTestV1997.mdb");
     MemFileChannel ch = MemFileChannel.newChannel(testFile, "r");
-    assertEquals(testFile.length(), ch.size());
-    assertEquals(0L, ch.position());
+    Assert.assertEquals(testFile.length(), ch.size());
+    Assert.assertEquals(0L, ch.position());
 
     try {
       ByteBuffer bb = ByteBuffer.allocate(1024);
       ch.write(bb);
-      fail("NonWritableChannelException should have been thrown");
+      Assert.fail("NonWritableChannelException should have been thrown");
     } catch(NonWritableChannelException ignored) {
       // success
     }
     
     try {
       ch.truncate(0L);
-      fail("NonWritableChannelException should have been thrown");
+      Assert.fail("NonWritableChannelException should have been thrown");
     } catch(NonWritableChannelException ignored) {
       // success
     }
     
     try {
       ch.transferFrom(null, 0L, 10L);
-      fail("NonWritableChannelException should have been thrown");
+      Assert.fail("NonWritableChannelException should have been thrown");
     } catch(NonWritableChannelException ignored) {
       // success
     }
 
-    assertEquals(testFile.length(), ch.size());
-    assertEquals(0L, ch.position());
+    Assert.assertEquals(testFile.length(), ch.size());
+    Assert.assertEquals(0L, ch.position());
 
     ch.close();
   }
 
+  @Test
   public void testChannel() throws Exception
   {
     ByteBuffer bb = ByteBuffer.allocate(1024);
 
     MemFileChannel ch = MemFileChannel.newChannel();
-    assertTrue(ch.isOpen());
-    assertEquals(0L, ch.size());
-    assertEquals(0L, ch.position());
-    assertEquals(-1, ch.read(bb));
+    Assert.assertTrue(ch.isOpen());
+    Assert.assertEquals(0L, ch.size());
+    Assert.assertEquals(0L, ch.position());
+    Assert.assertEquals(-1, ch.read(bb));
     
     ch.close();
 
-    assertFalse(ch.isOpen());
+    Assert.assertFalse(ch.isOpen());
 
     File testFile = new File("src/test/data/V1997/compIndexTestV1997.mdb");
     ch = MemFileChannel.newChannel(testFile, "r");
-    assertEquals(testFile.length(), ch.size());
-    assertEquals(0L, ch.position());
+    Assert.assertEquals(testFile.length(), ch.size());
+    Assert.assertEquals(0L, ch.position());
 
     try {
       ch.position(-1);
-      fail("IllegalArgumentException should have been thrown");
+      Assert.fail("IllegalArgumentException should have been thrown");
     } catch(IllegalArgumentException ignored) {
       // success
     }
@@ -103,20 +102,20 @@ public class MemFileChannelTest extends TestCase
     MemFileChannel ch2 = MemFileChannel.newChannel();
     ch.transferTo(ch2);
     ch2.force(true);
-    assertEquals(testFile.length(), ch2.size());
-    assertEquals(testFile.length(), ch2.position());
+    Assert.assertEquals(testFile.length(), ch2.size());
+    Assert.assertEquals(testFile.length(), ch2.position());
 
     try {
       ch2.truncate(-1L);
-      fail("IllegalArgumentException should have been thrown");
+      Assert.fail("IllegalArgumentException should have been thrown");
     } catch(IllegalArgumentException ignored) {
       // success
     }
     
     long trucSize = ch2.size()/3;
     ch2.truncate(trucSize);
-    assertEquals(trucSize, ch2.size());
-    assertEquals(trucSize, ch2.position());
+    Assert.assertEquals(trucSize, ch2.size());
+    Assert.assertEquals(trucSize, ch2.position());
     ch2.position(0L);
     copy(ch, ch2, bb);
 
@@ -128,19 +127,19 @@ public class MemFileChannelTest extends TestCase
 
     fc.close();
 
-    assertEquals(testFile.length(), tmpFile.length());
+    Assert.assertEquals(testFile.length(), tmpFile.length());
 
-    assertTrue(Arrays.equals(TestUtil.toByteArray(testFile),
+    Assert.assertTrue(Arrays.equals(TestUtil.toByteArray(testFile),
                              TestUtil.toByteArray(tmpFile)));
 
     ch2.truncate(0L);
-    assertTrue(ch2.isOpen());
-    assertEquals(0L, ch2.size());
-    assertEquals(0L, ch2.position());
-    assertEquals(-1, ch2.read(bb));
+    Assert.assertTrue(ch2.isOpen());
+    Assert.assertEquals(0L, ch2.size());
+    Assert.assertEquals(0L, ch2.position());
+    Assert.assertEquals(-1, ch2.read(bb));
 
     ch2.close();
-    assertFalse(ch2.isOpen());
+    Assert.assertFalse(ch2.isOpen());
   }
 
   private static void copy(FileChannel src, FileChannel dst, ByteBuffer bb)

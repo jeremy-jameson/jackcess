@@ -20,9 +20,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.expr.EvalException;
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.impl.expr.ExpressionatorTest.eval;
 import static com.healthmarketscience.jackcess.impl.expr.ExpressionatorTest.toBD;
 
@@ -30,13 +32,9 @@ import static com.healthmarketscience.jackcess.impl.expr.ExpressionatorTest.toBD
  *
  * @author James Ahlborn
  */
-public class DefaultFunctionsTest extends TestCase
+public class DefaultFunctionsTest
 {
-
-  public DefaultFunctionsTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testFuncs() throws Exception
   {
     assertEval("foo", "=IIf(10 > 1, \"foo\", \"bar\")");
@@ -56,11 +54,11 @@ public class DefaultFunctionsTest extends TestCase
     assertEval(" 9786", "=Str(9786)");
     assertEval("-42", "=Str(-42)");
     assertEval("-42", "=Str$(-42)");
-    assertNull(eval("=Str(Null)"));
+    Assert.assertNull(eval("=Str(Null)"));
 
     try {
       eval("=Str$(Null)");
-      fail("EvalException should have been thrown");
+      Assert.fail("EvalException should have been thrown");
     } catch(EvalException expected) {
       // success
     }
@@ -75,7 +73,7 @@ public class DefaultFunctionsTest extends TestCase
     assertEval(514, "=CInt(\"513.7\")");
     assertEval(345513, "=CLng(\"345513\")");
     assertEval(345514, "=CLng(\"345513.7\")");
-    assertEquals(new Float("57.12345").doubleValue(),
+    Assert.assertEquals(new Float("57.12345").doubleValue(),
                  eval("=CSng(\"57.12345\")"));
     assertEval("9786", "=CStr(9786)");
     assertEval("-42", "=CStr(-42)");
@@ -128,7 +126,7 @@ public class DefaultFunctionsTest extends TestCase
     assertEval(0, "=InStr(17, 'AFOOBAR', 'FOO')");
     assertEval(2, "=InStr(1, 'AFOOBARFOOBAR', 'FOO')");
     assertEval(8, "=InStr(3, 'AFOOBARFOOBAR', 'FOO')");
-    assertNull(eval("=InStr(3, Null, 'FOO')"));
+    Assert.assertNull(eval("=InStr(3, Null, 'FOO')"));
 
     assertEval(2, "=InStrRev('AFOOBAR', 'FOO')");
     assertEval(2, "=InStrRev('AFOOBAR', 'foo')");
@@ -141,7 +139,7 @@ public class DefaultFunctionsTest extends TestCase
     assertEval(2, "=InStrRev('AFOOBAR', 'FOO', 17)");
     assertEval(2, "=InStrRev('AFOOBARFOOBAR', 'FOO', 9)");
     assertEval(8, "=InStrRev('AFOOBARFOOBAR', 'FOO', 10)");
-    assertNull(eval("=InStrRev(Null, 'FOO', 3)"));
+    Assert.assertNull(eval("=InStrRev(Null, 'FOO', 3)"));
 
     assertEval("FOOO", "=UCase(\"fOoO\")");
     assertEval("fooo", "=LCase(\"fOoO\")");
@@ -186,16 +184,16 @@ public class DefaultFunctionsTest extends TestCase
 
     try {
       eval("=StrReverse('blah', 1)");
-      fail("EvalException should have been thrown");
+      Assert.fail("EvalException should have been thrown");
     } catch(EvalException e) {
-      assertTrue(e.getMessage().contains("Invalid function call"));
+      Assert.assertTrue(e.getMessage().contains("Invalid function call"));
     }
 
     try {
       eval("=StrReverse()");
-      fail("EvalException should have been thrown");
+      Assert.fail("EvalException should have been thrown");
     } catch(EvalException e) {
-      assertTrue(e.getMessage().contains("Invalid function call"));
+      Assert.assertTrue(e.getMessage().contains("Invalid function call"));
     }
 
     assertEval(1615198d, "=Val('    1615 198th Street N.E.')");
@@ -266,6 +264,7 @@ public class DefaultFunctionsTest extends TestCase
     assertEval("13:37", "=FormatDateTime(#1/1/1973 1:37:25 PM#,4)");
   }
 
+  @Test
   public void testFormat() throws Exception
   {
     assertEval("12345.6789", "=Format(12345.6789, 'General Number')");
@@ -330,6 +329,7 @@ public class DefaultFunctionsTest extends TestCase
     assertEval("19:00", "=Format(#01/02/2003 7:00:00 PM#, 'Short Time')");
   }
 
+  @Test
   public void testCustomFormat() throws Exception
   {
     assertEval("07:00 a", "=Format(#01/10/2003 7:00:00 AM#, 'hh:nn a/p')");
@@ -578,6 +578,7 @@ public class DefaultFunctionsTest extends TestCase
     }
   }
 
+  @Test
   public void testNumberFuncs() throws Exception
   {
     assertEval(1, "=Abs(1)");
@@ -619,6 +620,7 @@ public class DefaultFunctionsTest extends TestCase
     assertEval(-4, "=Round(-4, 2)");
   }
 
+  @Test
   public void testDateFuncs() throws Exception
   {
     assertEval("1/2/2003", "=CStr(DateValue(#01/02/2003 7:00:00 AM#))");
@@ -632,7 +634,7 @@ public class DefaultFunctionsTest extends TestCase
 
     assertEval(2003, "=Year('01/02/2003 7:00:00 AM')");
     assertEval(1899, "=Year(#7:00:00 AM#)");
-    assertEquals(Calendar.getInstance().get(Calendar.YEAR),
+    Assert.assertEquals(Calendar.getInstance().get(Calendar.YEAR),
                  eval("=Year('01/02 7:00:00 AM')"));
 
     assertEval("January", "=MonthName(1)");
@@ -653,9 +655,9 @@ public class DefaultFunctionsTest extends TestCase
     assertEval("Tuesday", "=WeekdayName(1,False,3)");
     assertEval("Thu", "=WeekdayName(3,True,3)");
 
-    assertTrue(((String)eval("=CStr(Date())"))
+    Assert.assertTrue(((String)eval("=CStr(Date())"))
                  .matches("\\d{1,2}/\\d{1,2}/\\d{4}"));
-    assertTrue(((String)eval("=CStr(Time())"))
+    Assert.assertTrue(((String)eval("=CStr(Time())"))
                .matches("\\d{1,2}:\\d{2}:\\d{2} (AM|PM)"));
 
     assertEval("3:57:34 AM", "=CStr(TimeSerial(3,57,34))");
@@ -775,6 +777,7 @@ public class DefaultFunctionsTest extends TestCase
     assertEval(-83421497, "=DateDiff('s',#11/3/2018 2:15:30 PM#,#3/13/2016 1:37:13 AM#)");
   }
 
+  @Test
   public void testFinancialFuncs() throws Exception
   {
     assertEval("-9.57859403981306", "=CStr(NPer(0.12/12,-100,-1000))");
@@ -855,7 +858,7 @@ public class DefaultFunctionsTest extends TestCase
 
   static void assertEval(Object expected, String exprStr) {
     try {
-      assertEquals(expected, eval(exprStr));
+      Assert.assertEquals(expected, eval(exprStr));
     } catch(Error e) {
       // Convenience for adding new tests
       // System.err.println("[ERROR] " + e);

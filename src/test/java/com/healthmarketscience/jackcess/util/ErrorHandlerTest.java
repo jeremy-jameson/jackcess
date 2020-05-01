@@ -22,6 +22,9 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import static com.healthmarketscience.jackcess.Database.*;
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.ColumnBuilder;
@@ -34,19 +37,14 @@ import com.healthmarketscience.jackcess.TableBuilder;
 import com.healthmarketscience.jackcess.impl.ColumnImpl;
 import com.healthmarketscience.jackcess.impl.JetFormatTest;
 import com.healthmarketscience.jackcess.impl.TableImpl;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  * @author James Ahlborn
  */
-public class ErrorHandlerTest extends TestCase 
+public class ErrorHandlerTest
 {
-
-  public ErrorHandlerTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testErrorHandler() throws Exception
   {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
@@ -77,7 +75,7 @@ public class ErrorHandlerTest extends TestCase
       table.reset();
       try {
         table.getNextRow();
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException e) {
         // success
       }
@@ -121,7 +119,7 @@ public class ErrorHandlerTest extends TestCase
 
       try {
         c3.getNextRow();
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException e) {
         // success
       }
@@ -131,7 +129,7 @@ public class ErrorHandlerTest extends TestCase
       c1.reset();
       try {
         c1.getNextRow();
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException e) {
         // success
       }

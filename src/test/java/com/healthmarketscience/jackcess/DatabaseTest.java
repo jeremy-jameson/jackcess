@@ -36,6 +36,9 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import static com.healthmarketscience.jackcess.Database.*;
 import com.healthmarketscience.jackcess.impl.ColumnImpl;
 import com.healthmarketscience.jackcess.impl.DatabaseImpl;
@@ -45,7 +48,6 @@ import com.healthmarketscience.jackcess.impl.RowImpl;
 import com.healthmarketscience.jackcess.impl.TableImpl;
 import com.healthmarketscience.jackcess.util.LinkResolver;
 import com.healthmarketscience.jackcess.util.RowFilterTest;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 
@@ -53,19 +55,16 @@ import static com.healthmarketscience.jackcess.TestUtil.*;
  * @author Tim McCune
  */
 @SuppressWarnings("deprecation")
-public class DatabaseTest extends TestCase
+public class DatabaseTest
 {
-  public DatabaseTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testInvalidTableDefs() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
 
       try {
         new TableBuilder("test").toTable(db);
-        fail("created table with no columns?");
+        Assert.fail("created table with no columns?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -75,7 +74,7 @@ public class DatabaseTest extends TestCase
           .addColumn(new ColumnBuilder("A", DataType.TEXT))
           .addColumn(new ColumnBuilder("a", DataType.MEMO))
           .toTable(db);
-        fail("created table with duplicate column names?");
+        Assert.fail("created table with duplicate column names?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -85,7 +84,7 @@ public class DatabaseTest extends TestCase
           .addColumn(new ColumnBuilder("A", DataType.TEXT)
                      .setLengthInUnits(352))
           .toTable(db);
-        fail("created table with invalid column length?");
+        Assert.fail("created table with invalid column length?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -94,7 +93,7 @@ public class DatabaseTest extends TestCase
         new TableBuilder("test")
           .addColumn(new ColumnBuilder("A_" + createString(70), DataType.TEXT))
           .toTable(db);
-        fail("created table with too long column name?");
+        Assert.fail("created table with too long column name?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -108,7 +107,7 @@ public class DatabaseTest extends TestCase
         new TableBuilder("Test")
           .addColumn(new ColumnBuilder("A", DataType.TEXT))
           .toTable(db);
-        fail("create duplicate tables?");
+        Assert.fail("create duplicate tables?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -117,6 +116,7 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testReadDeletedRows() throws Exception {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.DEL, true)) {
       Table table = open(testDB).getTable("Table");
@@ -124,16 +124,17 @@ public class DatabaseTest extends TestCase
       while (table.getNextRow() != null) {
         rows++;
       }
-      assertEquals(2, rows);
+      Assert.assertEquals(2, rows);
       table.getDatabase().close();
     }
   }
 
+  @Test
   public void testGetColumns() throws Exception {
     for (final TestDB testDB : SUPPORTED_DBS_TEST_FOR_READ) {
 
       List<? extends Column> columns = open(testDB).getTable("Table1").getColumns();
-      assertEquals(9, columns.size());
+      Assert.assertEquals(9, columns.size());
       checkColumn(columns, 0, "A", DataType.TEXT);
       checkColumn(columns, 1, "B", DataType.TEXT);
       checkColumn(columns, 2, "C", DataType.BYTE);
@@ -152,14 +153,15 @@ public class DatabaseTest extends TestCase
     throws Exception
   {
     Column column = columns.get(columnNumber);
-    assertEquals(name, column.getName());
-    assertEquals(dataType, column.getType());
+    Assert.assertEquals(name, column.getName());
+    Assert.assertEquals(dataType, column.getType());
   }
 
+  @Test
   public void testGetNextRow() throws Exception {
     for (final TestDB testDB : SUPPORTED_DBS_TEST_FOR_READ) {
       final Database db = open(testDB);
-      assertEquals(4, db.getTableNames().size());
+      Assert.assertEquals(4, db.getTableNames().size());
       final Table table = db.getTable("Table1");
 
       Row row1 = table.getNextRow();
@@ -178,14 +180,16 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testCreate() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
-      assertEquals(0, db.getTableNames().size());
+      Assert.assertEquals(0, db.getTableNames().size());
       db.close();
     }
   }
 
+  @Test
   public void testDeleteCurrentRow() throws Exception {
 
     // make sure correct row is deleted
@@ -209,9 +213,9 @@ public class DatabaseTest extends TestCase
       table.reset();
 
       Map<String, Object> outRow = table.getNextRow();
-      assertEquals("Tim1", outRow.get("A"));
+      Assert.assertEquals("Tim1", outRow.get("A"));
       outRow = table.getNextRow();
-      assertEquals("Tim3", outRow.get("A"));
+      Assert.assertEquals("Tim3", outRow.get("A"));
       assertRowCount(2, table);
 
       db.close();
@@ -250,12 +254,13 @@ public class DatabaseTest extends TestCase
       table.getDefaultCursor().deleteCurrentRow();
       assertRowCount(7, table);
       table.reset();
-      assertEquals(2, table.getNextRow().get("D"));
+      Assert.assertEquals(2, table.getNextRow().get("D"));
 
       db.close();
     }
   }
 
+  @Test
   public void testDeleteRow() throws Exception {
 
     // make sure correct row is deleted
@@ -274,10 +279,10 @@ public class DatabaseTest extends TestCase
 
       Row r1 = rows.remove(7);
       Row r2 = rows.remove(3);
-      assertEquals(8, rows.size());
+      Assert.assertEquals(8, rows.size());
 
-      assertSame(r2, table.deleteRow(r2));
-      assertSame(r1, table.deleteRow(r1));
+      Assert.assertSame(r2, table.deleteRow(r2));
+      Assert.assertSame(r1, table.deleteRow(r1));
 
       assertTable(rows, table);
 
@@ -288,18 +293,20 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testMissingFile() throws Exception {
     File bogusFile = new File("fooby-dooby.mdb");
-    assertTrue(!bogusFile.exists());
+    Assert.assertTrue(!bogusFile.exists());
     try {
       new DatabaseBuilder(bogusFile).setReadOnly(true).
         setAutoSync(getTestAutoSync()).open();
-      fail("FileNotFoundException should have been thrown");
+      Assert.fail("FileNotFoundException should have been thrown");
     } catch(FileNotFoundException e) {
     }
-    assertTrue(!bogusFile.exists());
+    Assert.assertTrue(!bogusFile.exists());
   }
 
+  @Test
   public void testReadWithDeletedCols() throws Exception {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.DEL_COL, true)) {
       Table table = open(testDB).getTable("Table1");
@@ -320,11 +327,11 @@ public class DatabaseTest extends TestCase
       Map<String, Object> row = null;
       while ((row = table.getNextRow()) != null) {
         if(rowNum == 0) {
-          assertEquals(expectedRow0, row);
+          Assert.assertEquals(expectedRow0, row);
         } else if(rowNum == 1) {
-          assertEquals(expectedRow1, row);
+          Assert.assertEquals(expectedRow1, row);
         } else if(rowNum >= 2) {
-          fail("should only have 2 rows");
+          Assert.fail("should only have 2 rows");
         }
         rowNum++;
       }
@@ -333,6 +340,7 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testCurrency() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -353,7 +361,7 @@ public class DatabaseTest extends TestCase
         foundValues.add(row.get("A"));
       }
 
-      assertEquals(Arrays.asList(
+      Assert.assertEquals(Arrays.asList(
                        new BigDecimal("-2341234.0345"),
                        new BigDecimal("37.0000"),
                        new BigDecimal("10000.4500")),
@@ -361,7 +369,7 @@ public class DatabaseTest extends TestCase
 
       try {
         table.addRow(new BigDecimal("342523234145343543.3453"));
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException e) {
         // ignored
       }
@@ -370,6 +378,7 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testGUID() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -393,7 +402,7 @@ public class DatabaseTest extends TestCase
         foundValues.add(row.get("A"));
       }
 
-      assertEquals(Arrays.asList(
+      Assert.assertEquals(Arrays.asList(
                        "{32A59F01-AA34-3E29-453F-4523453CD2E6}",
                        "{32A59F01-AA34-3E29-453F-4523453CD2E6}",
                        "{11111111-1111-1111-1111-111111111111}",
@@ -403,7 +412,7 @@ public class DatabaseTest extends TestCase
 
       try {
         table.addRow("3245234");
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException e) {
         // ignored
       }
@@ -412,6 +421,7 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testNumeric() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -419,7 +429,7 @@ public class DatabaseTest extends TestCase
 
       ColumnBuilder col = new ColumnBuilder("A", DataType.NUMERIC)
         .setScale(4).setPrecision(8).toColumn();
-      assertTrue(col.getType().isVariableLength());
+      Assert.assertTrue(col.getType().isVariableLength());
 
       Table table = new TableBuilder("test")
         .addColumn(col)
@@ -442,12 +452,12 @@ public class DatabaseTest extends TestCase
         foundBigValues.add(row.get("B"));
       }
 
-      assertEquals(Arrays.asList(
+      Assert.assertEquals(Arrays.asList(
                        new BigDecimal("-1234.0345"),
                        new BigDecimal("37.0000"),
                        new BigDecimal("1000.4500")),
                    foundSmallValues);
-      assertEquals(Arrays.asList(
+      Assert.assertEquals(Arrays.asList(
                        new BigDecimal("23923434453436.36234219"),
                        new BigDecimal("37.00000000"),
                        new BigDecimal("-3452345321000.00000000")),
@@ -456,7 +466,7 @@ public class DatabaseTest extends TestCase
       try {
         table.addRow(new BigDecimal("3245234.234"),
                      new BigDecimal("3245234.234"));
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException e) {
         // ignored
       }
@@ -465,6 +475,7 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testFixedNumeric() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.FIXED_NUMERIC)) {
@@ -474,23 +485,23 @@ public class DatabaseTest extends TestCase
       boolean first = true;
       for(Column col : t.getColumns()) {
         if(first) {
-          assertTrue(col.isVariableLength());
-          assertEquals(DataType.MEMO, col.getType());
+          Assert.assertTrue(col.isVariableLength());
+          Assert.assertEquals(DataType.MEMO, col.getType());
           first = false;
         } else {
-          assertFalse(col.isVariableLength());
-          assertEquals(DataType.NUMERIC, col.getType());
+          Assert.assertFalse(col.isVariableLength());
+          Assert.assertEquals(DataType.NUMERIC, col.getType());
         }
       }
 
       Map<String, Object> row = t.getNextRow();
-      assertEquals("some data", row.get("col1"));
-      assertEquals(new BigDecimal("1"), row.get("col2"));
-      assertEquals(new BigDecimal("0"), row.get("col3"));
-      assertEquals(new BigDecimal("0"), row.get("col4"));
-      assertEquals(new BigDecimal("4"), row.get("col5"));
-      assertEquals(new BigDecimal("-1"), row.get("col6"));
-      assertEquals(new BigDecimal("1"), row.get("col7"));
+      Assert.assertEquals("some data", row.get("col1"));
+      Assert.assertEquals(new BigDecimal("1"), row.get("col2"));
+      Assert.assertEquals(new BigDecimal("0"), row.get("col3"));
+      Assert.assertEquals(new BigDecimal("0"), row.get("col4"));
+      Assert.assertEquals(new BigDecimal("4"), row.get("col5"));
+      Assert.assertEquals(new BigDecimal("-1"), row.get("col6"));
+      Assert.assertEquals(new BigDecimal("1"), row.get("col7"));
 
       Object[] tmpRow = new Object[]{
         "foo", new BigDecimal("1"), new BigDecimal(3), new BigDecimal("13"),
@@ -500,26 +511,28 @@ public class DatabaseTest extends TestCase
 
       t.getNextRow();
       row = t.getNextRow();
-      assertEquals(tmpRow[0], row.get("col1"));
-      assertEquals(tmpRow[1], row.get("col2"));
-      assertEquals(tmpRow[2], row.get("col3"));
-      assertEquals(tmpRow[3], row.get("col4"));
-      assertEquals(tmpRow[4], row.get("col5"));
-      assertEquals(tmpRow[5], row.get("col6"));
-      assertEquals(tmpRow[6], row.get("col7"));
+      Assert.assertEquals(tmpRow[0], row.get("col1"));
+      Assert.assertEquals(tmpRow[1], row.get("col2"));
+      Assert.assertEquals(tmpRow[2], row.get("col3"));
+      Assert.assertEquals(tmpRow[3], row.get("col4"));
+      Assert.assertEquals(tmpRow[4], row.get("col5"));
+      Assert.assertEquals(tmpRow[5], row.get("col6"));
+      Assert.assertEquals(tmpRow[6], row.get("col7"));
 
       db.close();
     }
   }
 
+  @Test
   public void testMultiPageTableDef() throws Exception
   {
     for (final TestDB testDB : SUPPORTED_DBS_TEST_FOR_READ) {
       List<? extends Column> columns = open(testDB).getTable("Table2").getColumns();
-      assertEquals(89, columns.size());
+      Assert.assertEquals(89, columns.size());
     }
   }
 
+  @Test
   public void testOverflow() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.OVERFLOW, true)) {
@@ -531,7 +544,7 @@ public class DatabaseTest extends TestCase
       table.getNextRow();
 
       Map<String, Object> row = table.getNextRow();
-      assertEquals(Arrays.<Object>asList(
+      Assert.assertEquals(Arrays.<Object>asList(
                        null, "row3col3", null, null, null, null, null,
                        "row3col9", null),
                    new ArrayList<Object>(row.values()));
@@ -539,7 +552,7 @@ public class DatabaseTest extends TestCase
       table.getNextRow();
 
       row = table.getNextRow();
-      assertEquals(Arrays.<Object>asList(
+      Assert.assertEquals(Arrays.<Object>asList(
                        null, "row5col2", null, null, null, null, null, null,
                        null),
                    new ArrayList<Object>(row.values()));
@@ -551,13 +564,13 @@ public class DatabaseTest extends TestCase
     }
   }
 
-
+  @Test
   public void testUsageMapPromotion() throws Exception {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.PROMOTION)) {
       Database db = openMem(testDB);
       Table t = db.getTable("jobDB1");
 
-      assertTrue(((TableImpl)t).getOwnedPagesCursor().getUsageMap().toString()
+      Assert.assertTrue(((TableImpl)t).getOwnedPagesCursor().getUsageMap().toString()
                  .startsWith("InlineHandler"));
 
       String lval = createNonAsciiString(255); // "--255 chars long text--";
@@ -575,16 +588,16 @@ public class DatabaseTest extends TestCase
       for(Row row : t) {
         ids.add(row.getInt("ID"));
       }
-      assertEquals(1000, ids.size());
+      Assert.assertEquals(1000, ids.size());
 
-      assertTrue(((TableImpl)t).getOwnedPagesCursor().getUsageMap().toString()
+      Assert.assertTrue(((TableImpl)t).getOwnedPagesCursor().getUsageMap().toString()
                  .startsWith("ReferenceHandler"));
 
       db.close();
     }
   }
 
-
+  @Test
   public void testLargeTableDef() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -614,12 +627,13 @@ public class DatabaseTest extends TestCase
       t.addRow(row.toArray());
 
       t.reset();
-      assertEquals(expectedRowData, t.getNextRow());
+      Assert.assertEquals(expectedRowData, t.getNextRow());
 
       db.close();
     }
   }
 
+  @Test
   public void testWriteAndReadDate() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = createMem(fileFormat);
@@ -671,7 +685,7 @@ public class DatabaseTest extends TestCase
         foundDates.add(row.getDate("date"));
       }
 
-      assertEquals(dates.size(), foundDates.size());
+      Assert.assertEquals(dates.size(), foundDates.size());
       for(int i = 0; i < dates.size(); ++i) {
         Date expected = dates.get(i);
         Date found = foundDates.get(i);
@@ -682,6 +696,7 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testAncientDates() throws Exception
   {
     TimeZone tz = TimeZone.getTimeZone("America/New_York");
@@ -711,7 +726,7 @@ public class DatabaseTest extends TestCase
         foundDates.add(sdf.format(row.getDate("date")));
       }
 
-      assertEquals(dates, foundDates);
+      Assert.assertEquals(dates, foundDates);
 
       db.close();
     }
@@ -726,13 +741,14 @@ public class DatabaseTest extends TestCase
         foundDates.add(sdf.format(row.getDate("DateField")));
       }
 
-      assertEquals(dates, foundDates);
+      Assert.assertEquals(dates, foundDates);
 
       db.close();
     }
 
   }
 
+  @Test
   public void testSystemTable() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -745,13 +761,13 @@ public class DatabaseTest extends TestCase
                         "MSysRelationships"));
 
       if (fileFormat == FileFormat.GENERIC_JET4) {
-        assertNull("file format: " + fileFormat, db.getSystemTable("MSysAccessObjects"));
+        Assert.assertNull("file format: " + fileFormat, db.getSystemTable("MSysAccessObjects"));
       } else if (fileFormat.ordinal() < FileFormat.V2003.ordinal()) {
-        assertNotNull("file format: " + fileFormat, db.getSystemTable("MSysAccessObjects"));
+        Assert.assertNotNull("file format: " + fileFormat, db.getSystemTable("MSysAccessObjects"));
         sysTables.add("MSysAccessObjects");
       } else {
         // v2003+ template files have no "MSysAccessObjects" table
-        assertNull("file format: " + fileFormat, db.getSystemTable("MSysAccessObjects"));
+        Assert.assertNull("file format: " + fileFormat, db.getSystemTable("MSysAccessObjects"));
         sysTables.addAll(
             Arrays.asList("MSysNavPaneGroupCategories",
                           "MSysNavPaneGroups", "MSysNavPaneGroupToObjects",
@@ -771,24 +787,25 @@ public class DatabaseTest extends TestCase
         }
       }
 
-      assertEquals(sysTables, db.getSystemTableNames());
+      Assert.assertEquals(sysTables, db.getSystemTableNames());
 
-      assertNotNull(db.getSystemTable("MSysObjects"));
-      assertNotNull(db.getSystemTable("MSysQueries"));
-      assertNotNull(db.getSystemTable("MSysACES"));
-      assertNotNull(db.getSystemTable("MSysRelationships"));
+      Assert.assertNotNull(db.getSystemTable("MSysObjects"));
+      Assert.assertNotNull(db.getSystemTable("MSysQueries"));
+      Assert.assertNotNull(db.getSystemTable("MSysACES"));
+      Assert.assertNotNull(db.getSystemTable("MSysRelationships"));
 
-      assertNull(db.getSystemTable("MSysBogus"));
+      Assert.assertNull(db.getSystemTable("MSysBogus"));
 
       TableMetaData tmd = db.getTableMetaData("MSysObjects");
-      assertEquals("MSysObjects", tmd.getName());
-      assertFalse(tmd.isLinked());
-      assertTrue(tmd.isSystem());
+      Assert.assertEquals("MSysObjects", tmd.getName());
+      Assert.assertFalse(tmd.isLinked());
+      Assert.assertTrue(tmd.isSystem());
 
       db.close();
     }
   }
 
+  @Test
   public void testFixedText() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.FIXED_TEXT)) {
@@ -796,45 +813,47 @@ public class DatabaseTest extends TestCase
 
       Table t = db.getTable("users");
       Column c = t.getColumn("c_flag_");
-      assertEquals(DataType.TEXT, c.getType());
-      assertEquals(false, c.isVariableLength());
-      assertEquals(2, c.getLength());
+      Assert.assertEquals(DataType.TEXT, c.getType());
+      Assert.assertEquals(false, c.isVariableLength());
+      Assert.assertEquals(2, c.getLength());
 
       Map<String,Object> row = t.getNextRow();
-      assertEquals("N", row.get("c_flag_"));
+      Assert.assertEquals("N", row.get("c_flag_"));
 
       t.addRow(3, "testFixedText", "boo", "foo", "bob", 3, 5, 9, "Y",
                new Date());
 
       t.getNextRow();
       row = t.getNextRow();
-      assertEquals("testFixedText", row.get("c_user_login"));
-      assertEquals("Y", row.get("c_flag_"));
+      Assert.assertEquals("testFixedText", row.get("c_user_login"));
+      Assert.assertEquals("Y", row.get("c_flag_"));
 
       db.close();
     }
   }
 
+  @Test
   public void testDbSortOrder() throws Exception {
 
     for (final TestDB testDB : SUPPORTED_DBS_TEST_FOR_READ) {
 
       Database db = open(testDB);
-      assertEquals(((DatabaseImpl)db).getFormat().DEFAULT_SORT_ORDER,
+      Assert.assertEquals(((DatabaseImpl)db).getFormat().DEFAULT_SORT_ORDER,
                    ((DatabaseImpl)db).getDefaultSortOrder());
       db.close();
     }
   }
 
+  @Test
   public void testUnsupportedColumns() throws Exception {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.UNSUPPORTED)) {
 
       Database db = open(testDB);
       Table t = db.getTable("Test");
       Column varCol = t.getColumn("UnknownVar");
-      assertEquals(DataType.UNSUPPORTED_VARLEN, varCol.getType());
+      Assert.assertEquals(DataType.UNSUPPORTED_VARLEN, varCol.getType());
       Column fixCol = t.getColumn("UnknownFix");
-      assertEquals(DataType.UNSUPPORTED_FIXEDLEN, fixCol.getType());
+      Assert.assertEquals(DataType.UNSUPPORTED_FIXEDLEN, fixCol.getType());
 
       List<String> varVals = Arrays.asList(
           "RawData[(10) FF FE 73 6F  6D 65 64 61  74 61]",
@@ -854,46 +873,47 @@ public class DatabaseTest extends TestCase
     }
   }
 
+  @Test
   public void testLinkedTables() throws Exception {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.LINKED)) {
       Database db = openCopy(testDB);
 
       try {
         db.getTable("Table2");
-        fail("FileNotFoundException should have been thrown");
+        Assert.fail("FileNotFoundException should have been thrown");
       } catch(FileNotFoundException e) {
         // success
       }
 
       TableMetaData tmd = db.getTableMetaData("Table2");
-      assertEquals("Table2", tmd.getName());
-      assertTrue(tmd.isLinked());
-      assertFalse(tmd.isSystem());
-      assertEquals("Table1", tmd.getLinkedTableName());
-      assertEquals("Z:\\jackcess_test\\linkeeTest.accdb", tmd.getLinkedDbName());
+      Assert.assertEquals("Table2", tmd.getName());
+      Assert.assertTrue(tmd.isLinked());
+      Assert.assertFalse(tmd.isSystem());
+      Assert.assertEquals("Table1", tmd.getLinkedTableName());
+      Assert.assertEquals("Z:\\jackcess_test\\linkeeTest.accdb", tmd.getLinkedDbName());
 
       tmd = db.getTableMetaData("FooTable");
-      assertNull(tmd);
+      Assert.assertNull(tmd);
 
-      assertTrue(db.getLinkedDatabases().isEmpty());
+      Assert.assertTrue(db.getLinkedDatabases().isEmpty());
 
       final String linkeeDbName = "Z:\\jackcess_test\\linkeeTest.accdb";
       final File linkeeFile = new File("src/test/data/linkeeTest.accdb");
       db.setLinkResolver(new LinkResolver() {
         public Database resolveLinkedDatabase(Database linkerdb, String dbName)
           throws IOException {
-          assertEquals(linkeeDbName, dbName);
+          Assert.assertEquals(linkeeDbName, dbName);
           return DatabaseBuilder.open(linkeeFile);
         }
       });
 
       Table t2 = db.getTable("Table2");
 
-      assertEquals(1, db.getLinkedDatabases().size());
+      Assert.assertEquals(1, db.getLinkedDatabases().size());
       Database linkeeDb = db.getLinkedDatabases().get(linkeeDbName);
-      assertNotNull(linkeeDb);
-      assertEquals(linkeeFile, linkeeDb.getFile());
-      assertEquals("linkeeTest.accdb", ((DatabaseImpl)linkeeDb).getName());
+      Assert.assertNotNull(linkeeDb);
+      Assert.assertEquals(linkeeFile, linkeeDb.getFile());
+      Assert.assertEquals("linkeeTest.accdb", ((DatabaseImpl)linkeeDb).getName());
 
       List<? extends Map<String, Object>> expectedRows =
         createExpectedTable(
@@ -906,15 +926,15 @@ public class DatabaseTest extends TestCase
       db.createLinkedTable("FooTable", linkeeDbName, "Table2");
 
       tmd = db.getTableMetaData("FooTable");
-      assertEquals("FooTable", tmd.getName());
-      assertTrue(tmd.isLinked());
-      assertFalse(tmd.isSystem());
-      assertEquals("Table2", tmd.getLinkedTableName());
-      assertEquals("Z:\\jackcess_test\\linkeeTest.accdb", tmd.getLinkedDbName());
+      Assert.assertEquals("FooTable", tmd.getName());
+      Assert.assertTrue(tmd.isLinked());
+      Assert.assertFalse(tmd.isSystem());
+      Assert.assertEquals("Table2", tmd.getLinkedTableName());
+      Assert.assertEquals("Z:\\jackcess_test\\linkeeTest.accdb", tmd.getLinkedDbName());
 
       Table t3 = db.getTable("FooTable");
 
-      assertEquals(1, db.getLinkedDatabases().size());
+      Assert.assertEquals(1, db.getLinkedDatabases().size());
 
       expectedRows =
         createExpectedTable(
@@ -925,46 +945,46 @@ public class DatabaseTest extends TestCase
       assertTable(expectedRows, t3);
 
       tmd = db.getTableMetaData("Table1");
-      assertEquals("Table1", tmd.getName());
-      assertFalse(tmd.isLinked());
-      assertFalse(tmd.isSystem());
-      assertNull(tmd.getLinkedTableName());
-      assertNull(tmd.getLinkedDbName());
+      Assert.assertEquals("Table1", tmd.getName());
+      Assert.assertFalse(tmd.isLinked());
+      Assert.assertFalse(tmd.isSystem());
+      Assert.assertNull(tmd.getLinkedTableName());
+      Assert.assertNull(tmd.getLinkedDbName());
 
       Table t1 = tmd.open(db);
 
-      assertFalse(db.isLinkedTable(null));
-      assertTrue(db.isLinkedTable(t2));
-      assertTrue(db.isLinkedTable(t3));
-      assertFalse(db.isLinkedTable(t1));
+      Assert.assertFalse(db.isLinkedTable(null));
+      Assert.assertTrue(db.isLinkedTable(t2));
+      Assert.assertTrue(db.isLinkedTable(t3));
+      Assert.assertFalse(db.isLinkedTable(t1));
 
       List<Table> tables = getTables(db.newIterable());
-      assertEquals(3, tables.size());
-      assertTrue(tables.contains(t1));
-      assertTrue(tables.contains(t2));
-      assertTrue(tables.contains(t3));
-      assertFalse(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
+      Assert.assertEquals(3, tables.size());
+      Assert.assertTrue(tables.contains(t1));
+      Assert.assertTrue(tables.contains(t2));
+      Assert.assertTrue(tables.contains(t3));
+      Assert.assertFalse(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
 
       tables = getTables(db.newIterable().setIncludeNormalTables(false));
-      assertEquals(2, tables.size());
-      assertFalse(tables.contains(t1));
-      assertTrue(tables.contains(t2));
-      assertTrue(tables.contains(t3));
-      assertFalse(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
+      Assert.assertEquals(2, tables.size());
+      Assert.assertFalse(tables.contains(t1));
+      Assert.assertTrue(tables.contains(t2));
+      Assert.assertTrue(tables.contains(t3));
+      Assert.assertFalse(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
 
       tables = getTables(db.newIterable().withLocalUserTablesOnly());
-      assertEquals(1, tables.size());
-      assertTrue(tables.contains(t1));
-      assertFalse(tables.contains(t2));
-      assertFalse(tables.contains(t3));
-      assertFalse(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
+      Assert.assertEquals(1, tables.size());
+      Assert.assertTrue(tables.contains(t1));
+      Assert.assertFalse(tables.contains(t2));
+      Assert.assertFalse(tables.contains(t3));
+      Assert.assertFalse(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
 
       tables = getTables(db.newIterable().withSystemTablesOnly());
-      assertTrue(tables.size() > 5);
-      assertFalse(tables.contains(t1));
-      assertFalse(tables.contains(t2));
-      assertFalse(tables.contains(t3));
-      assertTrue(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
+      Assert.assertTrue(tables.size() > 5);
+      Assert.assertFalse(tables.contains(t1));
+      Assert.assertFalse(tables.contains(t2));
+      Assert.assertFalse(tables.contains(t3));
+      Assert.assertTrue(tables.contains(((DatabaseImpl)db).getSystemCatalog()));
 
       db.close();
     }
@@ -979,6 +999,7 @@ public class DatabaseTest extends TestCase
     return tableList;
   }
 
+  @Test
   public void testTimeZone() throws Exception
   {
     TimeZone tz = TimeZone.getTimeZone("America/New_York");
@@ -1017,20 +1038,22 @@ public class DatabaseTest extends TestCase
       Date curDate = curCal.getTime();
       Date newDate = new Date(col.fromDateDouble(col.toDateDouble(curDate)));
       if(curDate.getTime() != newDate.getTime()) {
-        assertEquals(sdf.format(curDate), sdf.format(newDate));
+        Assert.assertEquals(sdf.format(curDate), sdf.format(newDate));
       }
       curCal.add(Calendar.MINUTE, 30);
     }
   }
 
+  @Test
   public void testToString()
   {
     RowImpl row = new RowImpl(new RowIdImpl(1, 1));
     row.put("id", 37);
     row.put("data", null);
-    assertEquals("Row[1:1][{id=37,data=<null>}]", row.toString());
+    Assert.assertEquals("Row[1:1][{id=37,data=<null>}]", row.toString());
   }
 
+  @Test
   public void testIterateTableNames() throws Exception {
     for (final TestDB testDB : SUPPORTED_DBS_TEST_FOR_READ) {
       final Database db = open(testDB);
@@ -1042,14 +1065,14 @@ public class DatabaseTest extends TestCase
           ++sysCount;
           continue;
         }
-        assertFalse(tmd.isLinked());
-        assertNull(tmd.getLinkedTableName());
-        assertNull(tmd.getLinkedDbName());
+        Assert.assertFalse(tmd.isLinked());
+        Assert.assertNull(tmd.getLinkedTableName());
+        Assert.assertNull(tmd.getLinkedDbName());
         names.add(tmd.getName());
       }
 
-      assertTrue(sysCount > 4);
-      assertEquals(new HashSet<>(Arrays.asList("Table1", "Table2", "Table3",
+      Assert.assertTrue(sysCount > 4);
+      Assert.assertEquals(new HashSet<>(Arrays.asList("Table1", "Table2", "Table3",
                                                "Table4")),
                    names);
     }
@@ -1063,18 +1086,18 @@ public class DatabaseTest extends TestCase
           continue;
         }
         if("Table1".equals(tmd.getName())) {
-          assertFalse(tmd.isLinked());
-          assertNull(tmd.getLinkedTableName());
-          assertNull(tmd.getLinkedDbName());
+          Assert.assertFalse(tmd.isLinked());
+          Assert.assertNull(tmd.getLinkedTableName());
+          Assert.assertNull(tmd.getLinkedDbName());
         } else {
-          assertTrue(tmd.isLinked());
-          assertEquals("Table1", tmd.getLinkedTableName());
-          assertEquals("Z:\\jackcess_test\\linkeeTest.accdb", tmd.getLinkedDbName());
+          Assert.assertTrue(tmd.isLinked());
+          Assert.assertEquals("Table1", tmd.getLinkedTableName());
+          Assert.assertEquals("Z:\\jackcess_test\\linkeeTest.accdb", tmd.getLinkedDbName());
         }
         names.add(tmd.getName());
       }
 
-      assertEquals(new HashSet<>(Arrays.asList("Table1", "Table2")),
+      Assert.assertEquals(new HashSet<>(Arrays.asList("Table1", "Table2")),
                    names);
     }
   }
@@ -1082,10 +1105,10 @@ public class DatabaseTest extends TestCase
   private static void checkRawValue(String expected, Object val)
   {
     if(expected != null) {
-      assertTrue(ColumnImpl.isRawData(val));
-      assertEquals(expected, val.toString());
+      Assert.assertTrue(ColumnImpl.isRawData(val));
+      Assert.assertEquals(expected, val.toString());
     } else {
-      assertNull(val);
+      Assert.assertNull(val);
     }
   }
 }

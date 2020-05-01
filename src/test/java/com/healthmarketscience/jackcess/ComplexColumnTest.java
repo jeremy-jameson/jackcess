@@ -21,6 +21,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.complex.Attachment;
 import com.healthmarketscience.jackcess.complex.ComplexDataType;
 import com.healthmarketscience.jackcess.complex.ComplexValueForeignKey;
@@ -30,7 +33,6 @@ import com.healthmarketscience.jackcess.complex.Version;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.ColumnImpl;
 import com.healthmarketscience.jackcess.impl.PageChannel;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 
@@ -40,13 +42,9 @@ import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
  * @author James Ahlborn
  */
 @SuppressWarnings("deprecation")
-public class ComplexColumnTest extends TestCase
+public class ComplexColumnTest
 {
-
-  public ComplexColumnTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testVersions() throws Exception
   {
     for(final TestDB testDB : TestDB.getSupportedForBasename(Basename.COMPLEX)) {
@@ -55,10 +53,10 @@ public class ComplexColumnTest extends TestCase
 
       Table t1 = db.getTable("Table1");
       Column col = t1.getColumn("append-memo-data");
-      assertTrue(col.isAppendOnly());
+      Assert.assertTrue(col.isAppendOnly());
       Column verCol = col.getVersionHistoryColumn();
-      assertNotNull(verCol);
-      assertEquals(ComplexDataType.VERSION_HISTORY,
+      Assert.assertNotNull(verCol);
+      Assert.assertEquals(ComplexDataType.VERSION_HISTORY,
                    verCol.getComplexInfo().getType());
 
       for(Row row : t1) {
@@ -82,7 +80,7 @@ public class ComplexColumnTest extends TestCase
           checkVersions(4, complexValueFk, curValue,
                         "row4-memo", new Date(1315876945758L));
         } else {
-          assertTrue(false);
+          Assert.assertTrue(false);
         }
       }
 
@@ -98,7 +96,7 @@ public class ComplexColumnTest extends TestCase
                     "row8-memo", upTime);
 
       Cursor cursor = CursorBuilder.createCursor(t1);
-      assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row3"));
+      Assert.assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row3"));
       ComplexValueForeignKey row3ValFk = (ComplexValueForeignKey)
         cursor.getCurrentRowValue(verCol);
       cursor.setCurrentRowValue(col, "new-value");
@@ -111,7 +109,7 @@ public class ComplexColumnTest extends TestCase
 
       try {
         v.update();
-        fail("UnsupportedOperationException should have been thrown");
+        Assert.fail("UnsupportedOperationException should have been thrown");
       } catch(UnsupportedOperationException expected) {
         // success
       }
@@ -124,7 +122,7 @@ public class ComplexColumnTest extends TestCase
 
       try {
         v.delete();
-        fail("UnsupportedOperationException should have been thrown");
+        Assert.fail("UnsupportedOperationException should have been thrown");
       } catch(UnsupportedOperationException expected) {
         // success
       }
@@ -137,7 +135,7 @@ public class ComplexColumnTest extends TestCase
 
       try {
         v.getComplexValueForeignKey().deleteAllValues();
-        fail("UnsupportedOperationException should have been thrown");
+        Assert.fail("UnsupportedOperationException should have been thrown");
       } catch(UnsupportedOperationException expected) {
         // success
       }
@@ -152,6 +150,7 @@ public class ComplexColumnTest extends TestCase
     }
   }
 
+  @Test
   public void testAttachments() throws Exception
   {
     for(final TestDB testDB : TestDB.getSupportedForBasename(Basename.COMPLEX)) {
@@ -160,7 +159,7 @@ public class ComplexColumnTest extends TestCase
 
       Table t1 = db.getTable("Table1");
       Column col = t1.getColumn("attach-data");
-      assertEquals(ComplexDataType.ATTACHMENT,
+      Assert.assertEquals(ComplexDataType.ATTACHMENT,
                    col.getComplexInfo().getType());
 
       for(Row row : t1) {
@@ -177,7 +176,7 @@ public class ComplexColumnTest extends TestCase
         } else if(rowId.equals("row4")) {
           checkAttachments(4, complexValueFk, "test_data2.txt");
         } else {
-          assertTrue(false);
+          Assert.assertTrue(false);
         }
       }
 
@@ -197,7 +196,7 @@ public class ComplexColumnTest extends TestCase
                        "test_data2.txt");
 
       Cursor cursor = CursorBuilder.createCursor(t1);
-      assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row4"));
+      Assert.assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row4"));
       ComplexValueForeignKey row4ValFk = (ComplexValueForeignKey)
         cursor.getCurrentRowValue(col);
       Attachment a = row4ValFk.addAttachment(null, "test_data.txt", "txt",
@@ -212,22 +211,22 @@ public class ComplexColumnTest extends TestCase
       a.update();
 
       Attachment updated = row4ValFk.getAttachments().get(1);
-      assertNotSame(updated, a);
-      assertEquals("zip", updated.getFileType());
-      assertEquals("some_data.zip", updated.getFileName());
-      assertTrue(Arrays.equals(newBytes, updated.getFileData()));
+      Assert.assertNotSame(updated, a);
+      Assert.assertEquals("zip", updated.getFileType());
+      Assert.assertEquals("some_data.zip", updated.getFileName());
+      Assert.assertTrue(Arrays.equals(newBytes, updated.getFileData()));
       byte[] encBytes = updated.getEncodedFileData();
-      assertEquals(newBytes.length + 28, encBytes.length);
+      Assert.assertEquals(newBytes.length + 28, encBytes.length);
       ByteBuffer bb = PageChannel.wrap(encBytes);
-      assertEquals(0, bb.getInt());
-      assertTrue(ByteUtil.matchesRange(bb, 28, newBytes));
+      Assert.assertEquals(0, bb.getInt());
+      Assert.assertTrue(ByteUtil.matchesRange(bb, 28, newBytes));
 
       updated.delete();
       checkAttachments(4, row4ValFk, "test_data2.txt");
       row4ValFk.getAttachments().get(0).delete();
       checkAttachments(4, row4ValFk);
 
-      assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row2"));
+      Assert.assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row2"));
       ComplexValueForeignKey row2ValFk = (ComplexValueForeignKey)
         cursor.getCurrentRowValue(col);
       row2ValFk.deleteAllValues();
@@ -237,6 +236,7 @@ public class ComplexColumnTest extends TestCase
     }
   }
 
+  @Test
   public void testMultiValues() throws Exception
   {
     for(final TestDB testDB : TestDB.getSupportedForBasename(Basename.COMPLEX)) {
@@ -245,7 +245,7 @@ public class ComplexColumnTest extends TestCase
 
       Table t1 = db.getTable("Table1");
       Column col = t1.getColumn("multi-value-data");
-      assertEquals(ComplexDataType.MULTI_VALUE,
+      Assert.assertEquals(ComplexDataType.MULTI_VALUE,
                    col.getComplexInfo().getType());
 
       for(Row row : t1) {
@@ -263,7 +263,7 @@ public class ComplexColumnTest extends TestCase
         } else if(rowId.equals("row4")) {
           checkMultiValues(4, complexValueFk);
         } else {
-          assertTrue(false);
+          Assert.assertTrue(false);
         }
       }
 
@@ -278,7 +278,7 @@ public class ComplexColumnTest extends TestCase
       checkMultiValues(row8ValFk.get(), row8ValFk, "value1", "value2");
 
       Cursor cursor = CursorBuilder.createCursor(t1);
-      assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row2"));
+      Assert.assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row2"));
       ComplexValueForeignKey row2ValFk = (ComplexValueForeignKey)
         cursor.getCurrentRowValue(col);
       SingleValue v = row2ValFk.addMultiValue("value2");
@@ -298,7 +298,7 @@ public class ComplexColumnTest extends TestCase
       row2ValFk.getMultiValues().get(0).delete();
       checkMultiValues(2, row2ValFk);
 
-      assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row3"));
+      Assert.assertTrue(cursor.findFirstRow(t1.getColumn("id"), "row3"));
       ComplexValueForeignKey row3ValFk = (ComplexValueForeignKey)
         cursor.getCurrentRowValue(col);
       row3ValFk.deleteAllValues();
@@ -306,15 +306,16 @@ public class ComplexColumnTest extends TestCase
 
       // test multi-value col props
       PropertyMap props = col.getProperties();
-      assertEquals(Boolean.TRUE, props.getValue(PropertyMap.ALLOW_MULTI_VALUE_PROP));
-      assertEquals("Value List", props.getValue(PropertyMap.ROW_SOURCE_TYPE_PROP));
-      assertEquals("\"value1\";\"value2\";\"value3\";\"value4\"",
+      Assert.assertEquals(Boolean.TRUE, props.getValue(PropertyMap.ALLOW_MULTI_VALUE_PROP));
+      Assert.assertEquals("Value List", props.getValue(PropertyMap.ROW_SOURCE_TYPE_PROP));
+      Assert.assertEquals("\"value1\";\"value2\";\"value3\";\"value4\"",
                    props.getValue(PropertyMap.ROW_SOURCE_PROP));
 
       db.close();
     }
   }
 
+  @Test
   public void testUnsupported() throws Exception
   {
     for(final TestDB testDB : TestDB.getSupportedForBasename(Basename.UNSUPPORTED)) {
@@ -323,7 +324,7 @@ public class ComplexColumnTest extends TestCase
 
       Table t1 = db.getTable("Test");
       Column col = t1.getColumn("UnknownComplex");
-      assertEquals(ComplexDataType.UNSUPPORTED,
+      Assert.assertEquals(ComplexDataType.UNSUPPORTED,
                    col.getComplexInfo().getType());
 
       for(Row row : t1) {
@@ -339,7 +340,7 @@ public class ComplexColumnTest extends TestCase
         } else if(rowId.equals(3)) {
           checkUnsupportedValues(3, complexValueFk);
         } else {
-          assertTrue(false);
+          Assert.assertTrue(false);
         }
       }
 
@@ -352,20 +353,20 @@ public class ComplexColumnTest extends TestCase
       String curValue, Object... versionInfos)
     throws Exception
   {
-    assertEquals(cValId, complexValueFk.get());
+    Assert.assertEquals(cValId, complexValueFk.get());
 
     List<Version> versions = complexValueFk.getVersions();
     if(versionInfos.length == 0) {
-      assertTrue(versions.isEmpty());
-      assertNull(curValue);
+      Assert.assertTrue(versions.isEmpty());
+      Assert.assertNull(curValue);
     } else {
-      assertEquals(versionInfos.length / 2, versions.size());
-      assertEquals(curValue, versions.get(0).getValue());
+      Assert.assertEquals(versionInfos.length / 2, versions.size());
+      Assert.assertEquals(curValue, versions.get(0).getValue());
       for(int i = 0; i < versionInfos.length; i+=2) {
         String value = (String)versionInfos[i];
         Date modDate = (Date)versionInfos[i+1];
         Version v = versions.get(i/2);
-        assertEquals(value, v.getValue());
+        Assert.assertEquals(value, v.getValue());
         assertSameDate(modDate, v.getModifiedDate());
       }
     }
@@ -376,20 +377,20 @@ public class ComplexColumnTest extends TestCase
       String... fileNames)
     throws Exception
   {
-    assertEquals(cValId, complexValueFk.get());
+    Assert.assertEquals(cValId, complexValueFk.get());
 
     List<Attachment> attachments = complexValueFk.getAttachments();
     if(fileNames.length == 0) {
-      assertTrue(attachments.isEmpty());
+      Assert.assertTrue(attachments.isEmpty());
     } else {
-      assertEquals(fileNames.length, attachments.size());
+      Assert.assertEquals(fileNames.length, attachments.size());
       for(int i = 0; i < fileNames.length; ++i) {
         String fname = fileNames[i];
         Attachment a = attachments.get(i);
-        assertEquals(fname, a.getFileName());
-        assertEquals("txt", a.getFileType());
-        assertTrue(Arrays.equals(getFileBytes(fname), a.getFileData()));
-        assertTrue(Arrays.equals(getEncodedFileBytes(fname),
+        Assert.assertEquals(fname, a.getFileName());
+        Assert.assertEquals("txt", a.getFileType());
+        Assert.assertTrue(Arrays.equals(getFileBytes(fname), a.getFileData()));
+        Assert.assertTrue(Arrays.equals(getEncodedFileBytes(fname),
                                  a.getEncodedFileData()));
       }
     }
@@ -400,17 +401,17 @@ public class ComplexColumnTest extends TestCase
       Object... expectedValues)
     throws Exception
   {
-    assertEquals(cValId, complexValueFk.get());
+    Assert.assertEquals(cValId, complexValueFk.get());
 
     List<SingleValue> values = complexValueFk.getMultiValues();
     if(expectedValues.length == 0) {
-      assertTrue(values.isEmpty());
+      Assert.assertTrue(values.isEmpty());
     } else {
-      assertEquals(expectedValues.length, values.size());
+      Assert.assertEquals(expectedValues.length, values.size());
       for(int i = 0; i < expectedValues.length; ++i) {
         Object value = expectedValues[i];
         SingleValue v = values.get(i);
-        assertEquals(value, v.get());
+        Assert.assertEquals(value, v.get());
       }
     }
   }
@@ -420,20 +421,20 @@ public class ComplexColumnTest extends TestCase
       String... expectedValues)
     throws Exception
   {
-    assertEquals(cValId, complexValueFk.get());
+    Assert.assertEquals(cValId, complexValueFk.get());
 
     List<UnsupportedValue> values = complexValueFk.getUnsupportedValues();
     if(expectedValues.length == 0) {
-      assertTrue(values.isEmpty());
+      Assert.assertTrue(values.isEmpty());
     } else {
-      assertEquals(expectedValues.length, values.size());
+      Assert.assertEquals(expectedValues.length, values.size());
       for(int i = 0; i < expectedValues.length; ++i) {
         String value = expectedValues[i];
         UnsupportedValue v = values.get(i);
-        assertEquals(1, v.getValues().size());
+        Assert.assertEquals(1, v.getValues().size());
         Object rv = v.get("Value");
-        assertTrue(ColumnImpl.isRawData(rv));
-        assertEquals(value, rv.toString());
+        Assert.assertTrue(ColumnImpl.isRawData(rv));
+        Assert.assertEquals(value, rv.toString());
       }
     }
   }

@@ -24,16 +24,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.impl.ColumnImpl;
 import com.healthmarketscience.jackcess.impl.JetFormat;
 import com.healthmarketscience.jackcess.impl.PageChannel;
 import com.healthmarketscience.jackcess.impl.TableImpl;
-import junit.framework.TestCase;
 
 /**
  * @author Tim McCune
  */
-public class TableTest extends TestCase {
+public class TableTest {
 
   private final PageChannel _pageChannel = new PageChannel(true) {};
   private List<ColumnImpl> _columns = new ArrayList<ColumnImpl>();
@@ -42,10 +44,6 @@ public class TableTest extends TestCase {
   private int _fixedOffset;
 
 
-  public TableTest(String name) {
-    super(name);
-  }
-
   private void reset() {
     _testTable = null;
     _columns = new ArrayList<ColumnImpl>();
@@ -53,6 +51,7 @@ public class TableTest extends TestCase {
     _fixedOffset = 0;
   }
 
+  @Test
   public void testCreateRow() throws Exception {
     reset();
     newTestColumn(DataType.INT, false);
@@ -63,16 +62,17 @@ public class TableTest extends TestCase {
     int colCount = _columns.size();
     ByteBuffer buffer = createRow(9, "Tim", "McCune");
 
-    assertEquals((short) colCount, buffer.getShort());
-    assertEquals((short) 9, buffer.getShort());
-    assertEquals((byte) 'T', buffer.get());
-    assertEquals((short) 22, buffer.getShort(22));
-    assertEquals((short) 10, buffer.getShort(24));
-    assertEquals((short) 4, buffer.getShort(26));
-    assertEquals((short) 2, buffer.getShort(28));
-    assertEquals((byte) 7, buffer.get(30));
+    Assert.assertEquals((short) colCount, buffer.getShort());
+    Assert.assertEquals((short) 9, buffer.getShort());
+    Assert.assertEquals((byte) 'T', buffer.get());
+    Assert.assertEquals((short) 22, buffer.getShort(22));
+    Assert.assertEquals((short) 10, buffer.getShort(24));
+    Assert.assertEquals((short) 4, buffer.getShort(26));
+    Assert.assertEquals((short) 2, buffer.getShort(28));
+    Assert.assertEquals((byte) 7, buffer.get(30));
   }
 
+  @Test
   public void testUnicodeCompression() throws Exception {
     reset();
     newTestColumn(DataType.TEXT, false);
@@ -95,18 +95,18 @@ public class TableTest extends TestCase {
     ByteBuffer[] bufCmp1 = encodeColumns(small, large);
     ByteBuffer[] bufCmp2 = encodeColumns(smallNotAscii, largeNotAscii);
 
-    assertEquals(buf1[0].remaining(),
+    Assert.assertEquals(buf1[0].remaining(),
                  (bufCmp1[0].remaining() + small.length() - 2));
-    assertEquals(buf1[1].remaining(),
+    Assert.assertEquals(buf1[1].remaining(),
                  (bufCmp1[1].remaining() + large.length() - 2));
 
     for(int i = 0; i < buf2.length; ++i) {
-      assertTrue(Arrays.equals(toBytes(buf2[i]), toBytes(bufCmp2[i])));
+      Assert.assertTrue(Arrays.equals(toBytes(buf2[i]), toBytes(bufCmp2[i])));
     }
 
-    assertEquals(Arrays.asList(small, large),
+    Assert.assertEquals(Arrays.asList(small, large),
                  Arrays.asList(decodeColumns(bufCmp1)));
-    assertEquals(Arrays.asList(smallNotAscii, largeNotAscii),
+    Assert.assertEquals(Arrays.asList(smallNotAscii, largeNotAscii),
                  Arrays.asList(decodeColumns(bufCmp2)));
 
   }

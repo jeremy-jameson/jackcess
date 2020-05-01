@@ -26,6 +26,9 @@ import java.time.format.DateTimeFormatter;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.DataType;
 import com.healthmarketscience.jackcess.TestUtil;
 import com.healthmarketscience.jackcess.expr.EvalContext;
@@ -37,13 +40,12 @@ import com.healthmarketscience.jackcess.expr.ParseException;
 import com.healthmarketscience.jackcess.expr.TemporalConfig;
 import com.healthmarketscience.jackcess.expr.Value;
 import com.healthmarketscience.jackcess.impl.BaseEvalContext;
-import junit.framework.TestCase;
 
 /**
  *
  * @author James Ahlborn
  */
-public class ExpressionatorTest extends TestCase
+public class ExpressionatorTest
 {
   private static final double[] DBLS = {
     -10.3d,-9.0d,-8.234d,-7.11111d,-6.99999d,-5.5d,-4.0d,-3.4159265d,-2.84d,
@@ -53,11 +55,7 @@ public class ExpressionatorTest extends TestCase
   private static final int TRUE_NUM = -1;
   private static final int FALSE_NUM = 0;
 
-  public ExpressionatorTest(String name) {
-    super(name);
-  }
-
-
+  @Test
   public void testParseSimpleExprs() throws Exception
   {
     validateExpr("\"A\"", "<ELiteralValue>{\"A\"}");
@@ -111,6 +109,7 @@ public class ExpressionatorTest extends TestCase
     }
   }
 
+  @Test
   public void testOrderOfOperations() throws Exception
   {
     validateExpr("\"A\" Eqv \"B\"",
@@ -149,57 +148,58 @@ public class ExpressionatorTest extends TestCase
 
   }
 
+  @Test
   public void testSimpleMathExpressions() throws Exception
   {
     for(int i = -10; i <= 10; ++i) {
-      assertEquals(-i, eval("=-(" + i + ")"));
+      Assert.assertEquals(-i, eval("=-(" + i + ")"));
     }
 
     for(int i = -10; i <= 10; ++i) {
-      assertEquals(i, eval("=+(" + i + ")"));
+      Assert.assertEquals(i, eval("=+(" + i + ")"));
     }
 
     for(double i : DBLS) {
-      assertEquals(toBD(-i), eval("=-(" + i + ")"));
+      Assert.assertEquals(toBD(-i), eval("=-(" + i + ")"));
     }
 
     for(double i : DBLS) {
-      assertEquals(toBD(i), eval("=+(" + i + ")"));
+      Assert.assertEquals(toBD(i), eval("=+(" + i + ")"));
     }
 
     for(int i = -10; i <= 10; ++i) {
       for(int j = -10; j <= 10; ++j) {
-        assertEquals((i + j), eval("=" + i + " + " + j));
+        Assert.assertEquals((i + j), eval("=" + i + " + " + j));
       }
     }
 
     for(double i : DBLS) {
       for(double j : DBLS) {
-        assertEquals(toBD(toBD(i).add(toBD(j))), eval("=" + i + " + " + j));
+        Assert.assertEquals(toBD(toBD(i).add(toBD(j))), eval("=" + i + " + " + j));
       }
     }
 
     for(int i = -10; i <= 10; ++i) {
       for(int j = -10; j <= 10; ++j) {
-        assertEquals((i - j), eval("=" + i + " - " + j));
+        Assert.assertEquals((i - j), eval("=" + i + " - " + j));
       }
     }
 
     for(double i : DBLS) {
       for(double j : DBLS) {
-        assertEquals(toBD(toBD(i).subtract(toBD(j))), eval("=" + i + " - " + j));
+        Assert.assertEquals(toBD(toBD(i).subtract(toBD(j))), eval("=" + i + " - " + j));
       }
     }
 
     for(int i = -10; i <= 10; ++i) {
       for(int j = -10; j <= 10; ++j) {
-        assertEquals((i * j), eval("=" + i + " * " + j));
+        Assert.assertEquals((i * j), eval("=" + i + " * " + j));
       }
     }
 
     for(double i : DBLS) {
       for(double j : DBLS) {
-        assertEquals(toBD(toBD(i).multiply(toBD(j))), eval("=" + i + " * " + j));
+        Assert.assertEquals(toBD(toBD(i).multiply(toBD(j))), eval("=" + i + " * " + j));
       }
     }
 
@@ -208,7 +208,7 @@ public class ExpressionatorTest extends TestCase
         if(j == 0L) {
           evalFail("=" + i + " \\ " + j, ArithmeticException.class);
         } else {
-          assertEquals((i / j), eval("=" + i + " \\ " + j));
+          Assert.assertEquals((i / j), eval("=" + i + " \\ " + j));
         }
       }
     }
@@ -218,7 +218,7 @@ public class ExpressionatorTest extends TestCase
         if(roundToLongInt(j) == 0) {
           evalFail("=" + i + " \\ " + j, ArithmeticException.class);
         } else {
-          assertEquals((roundToLongInt(i) / roundToLongInt(j)),
+          Assert.assertEquals((roundToLongInt(i) / roundToLongInt(j)),
                        eval("=" + i + " \\ " + j));
         }
       }
@@ -229,7 +229,7 @@ public class ExpressionatorTest extends TestCase
         if(j == 0) {
           evalFail("=" + i + " Mod " + j, ArithmeticException.class);
         } else {
-          assertEquals((i % j), eval("=" + i + " Mod " + j));
+          Assert.assertEquals((i % j), eval("=" + i + " Mod " + j));
         }
       }
     }
@@ -239,7 +239,7 @@ public class ExpressionatorTest extends TestCase
         if(roundToLongInt(j) == 0) {
           evalFail("=" + i + " Mod " + j, ArithmeticException.class);
         } else {
-          assertEquals((roundToLongInt(i) % roundToLongInt(j)),
+          Assert.assertEquals((roundToLongInt(i) % roundToLongInt(j)),
                        eval("=" + i + " Mod " + j));
         }
       }
@@ -252,9 +252,9 @@ public class ExpressionatorTest extends TestCase
         } else {
           double result = (double)i / (double)j;
           if((int)result == result) {
-            assertEquals((int)result, eval("=" + i + " / " + j));
+            Assert.assertEquals((int)result, eval("=" + i + " / " + j));
           } else {
-            assertEquals(result, eval("=" + i + " / " + j));
+            Assert.assertEquals(result, eval("=" + i + " / " + j));
           }
         }
       }
@@ -265,7 +265,7 @@ public class ExpressionatorTest extends TestCase
         if(j == 0.0d) {
           evalFail("=" + i + " / " + j, ArithmeticException.class);
         } else {
-          assertEquals(toBD(BuiltinOperators.divide(toBD(i), toBD(j))),
+          Assert.assertEquals(toBD(BuiltinOperators.divide(toBD(i), toBD(j))),
                        eval("=" + i + " / " + j));
         }
       }
@@ -275,163 +275,171 @@ public class ExpressionatorTest extends TestCase
       for(int j = -10; j <= 10; ++j) {
         double result = Math.pow(i, j);
         if((int)result == result) {
-          assertEquals((int)result, eval("=" + i + " ^ " + j));
+          Assert.assertEquals((int)result, eval("=" + i + " ^ " + j));
         } else {
-          assertEquals(result, eval("=" + i + " ^ " + j));
+          Assert.assertEquals(result, eval("=" + i + " ^ " + j));
         }
       }
     }
   }
 
+  @Test
   public void testComparison() throws Exception
   {
-    assertEquals(TRUE_NUM, eval("='blah'<'fuzz'"));
-    assertEquals(FALSE_NUM, eval("=23>56"));
-    assertEquals(FALSE_NUM, eval("=23>=56"));
-    assertEquals(TRUE_NUM, eval("=13.2<=45.8"));
-    assertEquals(FALSE_NUM, eval("='blah'='fuzz'"));
-    assertEquals(TRUE_NUM, eval("='blah'<>'fuzz'"));
-    assertEquals(TRUE_NUM, eval("=CDbl(13.2)<=CDbl(45.8)"));
+    Assert.assertEquals(TRUE_NUM, eval("='blah'<'fuzz'"));
+    Assert.assertEquals(FALSE_NUM, eval("=23>56"));
+    Assert.assertEquals(FALSE_NUM, eval("=23>=56"));
+    Assert.assertEquals(TRUE_NUM, eval("=13.2<=45.8"));
+    Assert.assertEquals(FALSE_NUM, eval("='blah'='fuzz'"));
+    Assert.assertEquals(TRUE_NUM, eval("='blah'<>'fuzz'"));
+    Assert.assertEquals(TRUE_NUM, eval("=CDbl(13.2)<=CDbl(45.8)"));
 
-    assertEquals(FALSE_NUM, eval("='blah' Is Null"));
-    assertEquals(TRUE_NUM, eval("='blah' Is Not Null"));
+    Assert.assertEquals(FALSE_NUM, eval("='blah' Is Null"));
+    Assert.assertEquals(TRUE_NUM, eval("='blah' Is Not Null"));
 
-    assertEquals(TRUE_NUM, eval("=Null Is Null"));
-    assertEquals(FALSE_NUM, eval("=Null Is Not Null"));
+    Assert.assertEquals(TRUE_NUM, eval("=Null Is Null"));
+    Assert.assertEquals(FALSE_NUM, eval("=Null Is Not Null"));
 
-    assertEquals(TRUE_NUM, eval("='blah' Between 'a' And 'z'"));
-    assertEquals(TRUE_NUM, eval("='blah' Between 'z' And 'a'"));
-    assertEquals(FALSE_NUM, eval("='blah' Not Between 'a' And 'z'"));
+    Assert.assertEquals(TRUE_NUM, eval("='blah' Between 'a' And 'z'"));
+    Assert.assertEquals(TRUE_NUM, eval("='blah' Between 'z' And 'a'"));
+    Assert.assertEquals(FALSE_NUM, eval("='blah' Not Between 'a' And 'z'"));
 
-    assertEquals(TRUE_NUM, eval("='blah' In ('foo','bar','blah')"));
-    assertEquals(FALSE_NUM, eval("='blah' Not In ('foo','bar','blah')"));
+    Assert.assertEquals(TRUE_NUM, eval("='blah' In ('foo','bar','blah')"));
+    Assert.assertEquals(FALSE_NUM, eval("='blah' Not In ('foo','bar','blah')"));
 
-    assertEquals(TRUE_NUM, eval("=True Xor False"));
-    assertEquals(TRUE_NUM, eval("=True Or False"));
-    assertEquals(TRUE_NUM, eval("=False Or True"));
-    assertEquals(FALSE_NUM, eval("=True Imp False"));
-    assertEquals(FALSE_NUM, eval("=True Eqv False"));
-    assertEquals(TRUE_NUM, eval("=Not(True Eqv False)"));
+    Assert.assertEquals(TRUE_NUM, eval("=True Xor False"));
+    Assert.assertEquals(TRUE_NUM, eval("=True Or False"));
+    Assert.assertEquals(TRUE_NUM, eval("=False Or True"));
+    Assert.assertEquals(FALSE_NUM, eval("=True Imp False"));
+    Assert.assertEquals(FALSE_NUM, eval("=True Eqv False"));
+    Assert.assertEquals(TRUE_NUM, eval("=Not(True Eqv False)"));
   }
 
+  @Test
   public void testDateArith() throws Exception
   {
-    assertEquals(LocalDateTime.of(2003,1,2,7,0), eval("=#01/02/2003# + #7:00:00 AM#"));
-    assertEquals(LocalDateTime.of(2003,1,1,17,0), eval("=#01/02/2003# - #7:00:00 AM#"));
-    assertEquals(LocalDateTime.of(2003,2,8,0,0), eval("=#01/02/2003# + '37'"));
-    assertEquals(LocalDateTime.of(2003,2,8,0,0), eval("='37' + #01/02/2003#"));
-    assertEquals(LocalDateTime.of(2003,1,2,7,0), eval("=#01/02/2003 7:00:00 AM#"));
+    Assert.assertEquals(LocalDateTime.of(2003,1,2,7,0), eval("=#01/02/2003# + #7:00:00 AM#"));
+    Assert.assertEquals(LocalDateTime.of(2003,1,1,17,0), eval("=#01/02/2003# - #7:00:00 AM#"));
+    Assert.assertEquals(LocalDateTime.of(2003,2,8,0,0), eval("=#01/02/2003# + '37'"));
+    Assert.assertEquals(LocalDateTime.of(2003,2,8,0,0), eval("='37' + #01/02/2003#"));
+    Assert.assertEquals(LocalDateTime.of(2003,1,2,7,0), eval("=#01/02/2003 7:00:00 AM#"));
 
-    assertEquals("2/8/2003", eval("=CStr(#01/02/2003# + '37')"));
-    assertEquals("9:24:00 AM", eval("=CStr(#7:00:00 AM# + 0.1)"));
-    assertEquals("1/2/2003 1:10:00 PM", eval("=CStr(#01/02/2003# + #13:10:00#)"));
+    Assert.assertEquals("2/8/2003", eval("=CStr(#01/02/2003# + '37')"));
+    Assert.assertEquals("9:24:00 AM", eval("=CStr(#7:00:00 AM# + 0.1)"));
+    Assert.assertEquals("1/2/2003 1:10:00 PM", eval("=CStr(#01/02/2003# + #13:10:00#)"));
   }
 
+  @Test
   public void testNull() throws Exception
   {
-    assertNull(eval("=37 + Null"));
-    assertNull(eval("=37 - Null"));
-    assertNull(eval("=37 / Null"));
-    assertNull(eval("=37 * Null"));
-    assertNull(eval("=37 ^ Null"));
-    assertEquals("37", eval("=37 & Null"));
-    assertEquals("37", eval("=Null & 37"));
-    assertNull(eval("=37 Mod Null"));
-    assertNull(eval("=37 \\ Null"));
-    assertNull(eval("=-(Null)"));
-    assertNull(eval("=+(Null)"));
-    assertNull(eval("=Not Null"));
-    assertEquals(TRUE_NUM, eval("=37 Or Null"));
-    assertNull(eval("=Null Or 37"));
-    assertNull(eval("=37 And Null"));
-    assertNull(eval("=Null And 37"));
-    assertNull(eval("=37 Xor Null"));
-    assertNull(eval("=37 Imp Null"));
-    assertNull(eval("=Null Imp Null"));
-    assertEquals(TRUE_NUM, eval("=Null Imp 37"));
-    assertNull(eval("=37 Eqv Null"));
-    assertNull(eval("=37 < Null"));
-    assertNull(eval("=37 > Null"));
-    assertNull(eval("=37 = Null"));
-    assertNull(eval("=37 <> Null"));
-    assertNull(eval("=37 <= Null"));
-    assertNull(eval("=37 >= Null"));
+    Assert.assertNull(eval("=37 + Null"));
+    Assert.assertNull(eval("=37 - Null"));
+    Assert.assertNull(eval("=37 / Null"));
+    Assert.assertNull(eval("=37 * Null"));
+    Assert.assertNull(eval("=37 ^ Null"));
+    Assert.assertEquals("37", eval("=37 & Null"));
+    Assert.assertEquals("37", eval("=Null & 37"));
+    Assert.assertNull(eval("=37 Mod Null"));
+    Assert.assertNull(eval("=37 \\ Null"));
+    Assert.assertNull(eval("=-(Null)"));
+    Assert.assertNull(eval("=+(Null)"));
+    Assert.assertNull(eval("=Not Null"));
+    Assert.assertEquals(TRUE_NUM, eval("=37 Or Null"));
+    Assert.assertNull(eval("=Null Or 37"));
+    Assert.assertNull(eval("=37 And Null"));
+    Assert.assertNull(eval("=Null And 37"));
+    Assert.assertNull(eval("=37 Xor Null"));
+    Assert.assertNull(eval("=37 Imp Null"));
+    Assert.assertNull(eval("=Null Imp Null"));
+    Assert.assertEquals(TRUE_NUM, eval("=Null Imp 37"));
+    Assert.assertNull(eval("=37 Eqv Null"));
+    Assert.assertNull(eval("=37 < Null"));
+    Assert.assertNull(eval("=37 > Null"));
+    Assert.assertNull(eval("=37 = Null"));
+    Assert.assertNull(eval("=37 <> Null"));
+    Assert.assertNull(eval("=37 <= Null"));
+    Assert.assertNull(eval("=37 >= Null"));
 
-    assertNull(eval("=37 Between Null And 54"));
-    assertEquals(FALSE_NUM, eval("=37 In (23, Null, 45)"));
-    assertNull(eval("=Null In (23, Null, 45)"));
+    Assert.assertNull(eval("=37 Between Null And 54"));
+    Assert.assertEquals(FALSE_NUM, eval("=37 In (23, Null, 45)"));
+    Assert.assertNull(eval("=Null In (23, Null, 45)"));
   }
 
+  @Test
   public void testTrickyMathExpressions() throws Exception
   {
-    assertEquals(37, eval("=30+7"));
-    assertEquals(23, eval("=30+-7"));
-    assertEquals(23, eval("=30-+7"));
-    assertEquals(37, eval("=30--7"));
-    assertEquals(23, eval("=30-7"));
+    Assert.assertEquals(37, eval("=30+7"));
+    Assert.assertEquals(23, eval("=30+-7"));
+    Assert.assertEquals(23, eval("=30-+7"));
+    Assert.assertEquals(37, eval("=30--7"));
+    Assert.assertEquals(23, eval("=30-7"));
 
-    assertEquals(100, eval("=-10^2"));
-    assertEquals(-100, eval("=-(10)^2"));
-    assertEquals(-100d, eval("=-\"10\"^2"));
-    assertEquals(toBD(-98.9d), eval("=1.1+(-\"10\"^2)"));
+    Assert.assertEquals(100, eval("=-10^2"));
+    Assert.assertEquals(-100, eval("=-(10)^2"));
+    Assert.assertEquals(-100d, eval("=-\"10\"^2"));
+    Assert.assertEquals(toBD(-98.9d), eval("=1.1+(-\"10\"^2)"));
 
-    assertEquals(toBD(99d), eval("=-10E-1+10e+1"));
-    assertEquals(toBD(-101d), eval("=-10E-1-10e+1"));
+    Assert.assertEquals(toBD(99d), eval("=-10E-1+10e+1"));
+    Assert.assertEquals(toBD(-101d), eval("=-10E-1-10e+1"));
   }
 
+  @Test
   public void testTypeCoercion() throws Exception
   {
-    assertEquals("foobar", eval("=\"foo\" + \"bar\""));
+    Assert.assertEquals("foobar", eval("=\"foo\" + \"bar\""));
 
-    assertEquals("12foo", eval("=12 + \"foo\""));
-    assertEquals("foo12", eval("=\"foo\" + 12"));
+    Assert.assertEquals("12foo", eval("=12 + \"foo\""));
+    Assert.assertEquals("foo12", eval("=\"foo\" + 12"));
 
-    assertEquals(37d, eval("=\"25\" + 12"));
-    assertEquals(37d, eval("=12 + \"25\""));
-    assertEquals(37d, eval("=\" 25 \" + 12"));
-    assertEquals(37d, eval("=\" &h1A \" + 11"));
-    assertEquals(37d, eval("=\" &h1a \" + 11"));
-    assertEquals(37d, eval("=\" &O32 \" + 11"));
-    assertEquals(1037d, eval("=\"1,025\" + 12"));
+    Assert.assertEquals(37d, eval("=\"25\" + 12"));
+    Assert.assertEquals(37d, eval("=12 + \"25\""));
+    Assert.assertEquals(37d, eval("=\" 25 \" + 12"));
+    Assert.assertEquals(37d, eval("=\" &h1A \" + 11"));
+    Assert.assertEquals(37d, eval("=\" &h1a \" + 11"));
+    Assert.assertEquals(37d, eval("=\" &O32 \" + 11"));
+    Assert.assertEquals(1037d, eval("=\"1,025\" + 12"));
 
     evalFail(("=12 - \"foo\""), RuntimeException.class);
     evalFail(("=\"foo\" - 12"), RuntimeException.class);
 
-    assertEquals("foo1225", eval("=\"foo\" + 12 + 25"));
-    assertEquals("37foo", eval("=12 + 25 + \"foo\""));
-    assertEquals("foo37", eval("=\"foo\" + (12 + 25)"));
-    assertEquals("25foo12", eval("=\"25foo\" + 12"));
+    Assert.assertEquals("foo1225", eval("=\"foo\" + 12 + 25"));
+    Assert.assertEquals("37foo", eval("=12 + 25 + \"foo\""));
+    Assert.assertEquals("foo37", eval("=\"foo\" + (12 + 25)"));
+    Assert.assertEquals("25foo12", eval("=\"25foo\" + 12"));
 
-    assertEquals(LocalDateTime.of(2017,1,28,0,0), eval("=#1/1/2017# + 27"));
-    assertEquals(128208, eval("=#1/1/2017# * 3"));
+    Assert.assertEquals(LocalDateTime.of(2017,1,28,0,0), eval("=#1/1/2017# + 27"));
+    Assert.assertEquals(128208, eval("=#1/1/2017# * 3"));
   }
 
+  @Test
   public void testLikeExpression() throws Exception
   {
     validateExpr("Like \"[abc]*\"", "<ELikeOp>{<EThisValue>{<THIS_COL>} Like \"[abc]*\"([abc].*)}",
                  "Like \"[abc]*\"");
-    assertTrue(evalCondition("Like \"[abc]*\"", "afcd"));
-    assertFalse(evalCondition("Like \"[abc]*\"", "fcd"));
+    Assert.assertTrue(evalCondition("Like \"[abc]*\"", "afcd"));
+    Assert.assertFalse(evalCondition("Like \"[abc]*\"", "fcd"));
 
     validateExpr("Like  \"[abc*\"", "<ELikeOp>{<EThisValue>{<THIS_COL>} Like \"[abc*\"((?!))}",
                  "Like \"[abc*\"");
-    assertFalse(evalCondition("Like \"[abc*\"", "afcd"));
-    assertFalse(evalCondition("Like \"[abc*\"", "fcd"));
-    assertTrue(evalCondition("Not Like \"[abc*\"", "fcd"));
-    assertFalse(evalCondition("Like \"[abc*\"", ""));
+    Assert.assertFalse(evalCondition("Like \"[abc*\"", "afcd"));
+    Assert.assertFalse(evalCondition("Like \"[abc*\"", "fcd"));
+    Assert.assertTrue(evalCondition("Not Like \"[abc*\"", "fcd"));
+    Assert.assertFalse(evalCondition("Like \"[abc*\"", ""));
   }
 
+  @Test
   public void testLiteralDefaultValue() throws Exception
   {
-    assertEquals("-28 blah ", eval("=CDbl(9)-37 & \" blah \"",
+    Assert.assertEquals("-28 blah ", eval("=CDbl(9)-37 & \" blah \"",
                                      Value.Type.STRING));
-    assertEquals("CDbl(9)-37 & \" blah \"",
+    Assert.assertEquals("CDbl(9)-37 & \" blah \"",
                  eval("CDbl(9)-37 & \" blah \"", Value.Type.STRING));
 
-    assertEquals(-28d, eval("=CDbl(9)-37", Value.Type.DOUBLE));
-    assertEquals(-28d, eval("CDbl(9)-37", Value.Type.DOUBLE));
+    Assert.assertEquals(-28d, eval("=CDbl(9)-37", Value.Type.DOUBLE));
+    Assert.assertEquals(-28d, eval("CDbl(9)-37", Value.Type.DOUBLE));
   }
 
+  @Test
   public void testParseSomeExprs() throws Exception
   {
     BufferedReader br = new BufferedReader(new FileReader("src/test/resources/test_exprs.txt"));
@@ -473,6 +481,7 @@ public class ExpressionatorTest extends TestCase
     br.close();
   }
 
+  @Test
   public void testInvalidExpressions() throws Exception
   {
     doTestEvalFail("", "empty");
@@ -493,10 +502,10 @@ public class ExpressionatorTest extends TestCase
   private static void doTestEvalFail(String exprStr, String msgStr) {
     try {
       eval(exprStr);
-      fail("ParseException should have been thrown");
+      Assert.fail("ParseException should have been thrown");
     } catch(ParseException pe) {
       // success
-      assertTrue(pe.getMessage().contains(msgStr));
+      Assert.assertTrue(pe.getMessage().contains(msgStr));
     }
   }
 
@@ -511,13 +520,13 @@ public class ExpressionatorTest extends TestCase
         Expressionator.Type.FIELD_VALIDATOR, exprStr, null, ctx);
     String foundDebugStr = expr.toDebugString(ctx);
     if(foundDebugStr.startsWith("<EImplicitCompOp>")) {
-      assertEquals("<EImplicitCompOp>{<EThisValue>{<THIS_COL>} = " +
+      Assert.assertEquals("<EImplicitCompOp>{<EThisValue>{<THIS_COL>} = " +
                    debugStr + "}", foundDebugStr);
     } else {
-      assertEquals(debugStr, foundDebugStr);
+      Assert.assertEquals(debugStr, foundDebugStr);
     }
-    assertEquals(cleanStr, expr.toCleanString(ctx));
-    assertEquals(exprStr, expr.toRawString());
+    Assert.assertEquals(cleanStr, expr.toCleanString(ctx));
+    Assert.assertEquals(exprStr, expr.toRawString());
   }
 
   static Object eval(String exprStr) {
@@ -539,9 +548,9 @@ public class ExpressionatorTest extends TestCase
         Expressionator.Type.DEFAULT_VALUE, exprStr, null, tc);
     try {
       expr.eval(tc);
-      fail(failure + " should have been thrown");
+      Assert.fail(failure + " should have been thrown");
     } catch(Exception e) {
-      assertTrue(failure.isInstance(e));
+      Assert.assertTrue(failure.isInstance(e));
     }
   }
 

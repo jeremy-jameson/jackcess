@@ -21,6 +21,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.DataType;
 import com.healthmarketscience.jackcess.Database;
@@ -31,7 +34,6 @@ import com.healthmarketscience.jackcess.TableBuilder;
 import com.healthmarketscience.jackcess.complex.Attachment;
 import com.healthmarketscience.jackcess.impl.ByteUtil;
 import com.healthmarketscience.jackcess.impl.CompoundOleUtil;
-import junit.framework.TestCase;
 import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.DocumentInputStream;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -42,13 +44,9 @@ import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
  *
  * @author James Ahlborn
  */
-public class OleBlobTest extends TestCase
+public class OleBlobTest
 {
-
-  public OleBlobTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testCreateBlob() throws Exception
   {
     File sampleFile = new File("src/test/data/sample-input.tab");
@@ -99,46 +97,46 @@ public class OleBlobTest extends TestCase
         try {
           blob = row.getBlob("ole");
           OleBlob.Content content = blob.getContent();
-          assertSame(blob, content.getBlob());
-          assertSame(content, blob.getContent());
+          Assert.assertSame(blob, content.getBlob());
+          Assert.assertSame(content, blob.getContent());
 
           switch(row.getInt("id")) {
           case 1:
-            assertEquals(OleBlob.ContentType.SIMPLE_PACKAGE, content.getType());
+            Assert.assertEquals(OleBlob.ContentType.SIMPLE_PACKAGE, content.getType());
             OleBlob.SimplePackageContent spc = (OleBlob.SimplePackageContent)content;
-            assertEquals(sampleFilePath, spc.getFilePath());
-            assertEquals(sampleFilePath, spc.getLocalFilePath());
-            assertEquals(sampleFileName, spc.getFileName());
-            assertEquals(OleBlob.Builder.PACKAGE_PRETTY_NAME,
+            Assert.assertEquals(sampleFilePath, spc.getFilePath());
+            Assert.assertEquals(sampleFilePath, spc.getLocalFilePath());
+            Assert.assertEquals(sampleFileName, spc.getFileName());
+            Assert.assertEquals(OleBlob.Builder.PACKAGE_PRETTY_NAME,
                          spc.getPrettyName());
-            assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME,
+            Assert.assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME,
                          spc.getTypeName());
-            assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME,
+            Assert.assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME,
                          spc.getClassName());
-            assertEquals(sampleFileBytes.length, spc.length());
-            assertTrue(Arrays.equals(sampleFileBytes,
+            Assert.assertEquals(sampleFileBytes.length, spc.length());
+            Assert.assertTrue(Arrays.equals(sampleFileBytes,
                                      toByteArray(spc.getStream(), spc.length())));
             break;
 
           case 2:
             OleBlob.LinkContent lc = (OleBlob.LinkContent)content;
-            assertEquals(OleBlob.ContentType.LINK, lc.getType());
-            assertEquals(sampleFilePath, lc.getLinkPath());
-            assertEquals(sampleFilePath, lc.getFilePath());
-            assertEquals(sampleFileName, lc.getFileName());
-            assertEquals(OleBlob.Builder.PACKAGE_PRETTY_NAME, lc.getPrettyName());
-            assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME, lc.getTypeName());
-            assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME, lc.getClassName());
+            Assert.assertEquals(OleBlob.ContentType.LINK, lc.getType());
+            Assert.assertEquals(sampleFilePath, lc.getLinkPath());
+            Assert.assertEquals(sampleFilePath, lc.getFilePath());
+            Assert.assertEquals(sampleFileName, lc.getFileName());
+            Assert.assertEquals(OleBlob.Builder.PACKAGE_PRETTY_NAME, lc.getPrettyName());
+            Assert.assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME, lc.getTypeName());
+            Assert.assertEquals(OleBlob.Builder.PACKAGE_TYPE_NAME, lc.getClassName());
             break;
 
           case 3:
             OleBlob.OtherContent oc = (OleBlob.OtherContent)content;
-            assertEquals(OleBlob.ContentType.OTHER, oc.getType());
-            assertEquals("Text File", oc.getPrettyName());
-            assertEquals("Text.File", oc.getClassName());
-            assertEquals("TextFile", oc.getTypeName());
-            assertEquals(sampleFileBytes.length, oc.length());
-            assertTrue(Arrays.equals(sampleFileBytes,
+            Assert.assertEquals(OleBlob.ContentType.OTHER, oc.getType());
+            Assert.assertEquals("Text File", oc.getPrettyName());
+            Assert.assertEquals("Text.File", oc.getClassName());
+            Assert.assertEquals("TextFile", oc.getTypeName());
+            Assert.assertEquals(sampleFileBytes.length, oc.length());
+            Assert.assertTrue(Arrays.equals(sampleFileBytes,
                                      toByteArray(oc.getStream(), oc.length())));
             break;
           default:
@@ -153,6 +151,7 @@ public class OleBlobTest extends TestCase
     }
   }
 
+  @Test
   public void testReadBlob() throws Exception
   {
     for(TestDB testDb : TestDB.getSupportedForBasename(Basename.BLOB, true)) {
@@ -177,16 +176,16 @@ public class OleBlobTest extends TestCase
           case LINK:
             OleBlob.LinkContent lc = (OleBlob.LinkContent)content;
             if("test_link".equals(name)) {
-              assertEquals("Z:\\jackcess_test\\ole\\test_data.txt", lc.getLinkPath());
+              Assert.assertEquals("Z:\\jackcess_test\\ole\\test_data.txt", lc.getLinkPath());
             } else {
-              assertEquals("Z:\\jackcess_test\\ole\\test_datau2.txt", lc.getLinkPath());
+              Assert.assertEquals("Z:\\jackcess_test\\ole\\test_datau2.txt", lc.getLinkPath());
             }
             break;
 
           case SIMPLE_PACKAGE:
             OleBlob.SimplePackageContent spc = (OleBlob.SimplePackageContent)content;
             byte[] packageBytes = toByteArray(spc.getStream(), spc.length());
-            assertTrue(Arrays.equals(attach.getFileData(), packageBytes));
+            Assert.assertTrue(Arrays.equals(attach.getFileData(), packageBytes));
             break;
 
           case COMPOUND_STORAGE:
@@ -194,7 +193,7 @@ public class OleBlobTest extends TestCase
             if(cc.hasContentsEntry()) {
               OleBlob.CompoundContent.Entry entry = cc.getContentsEntry();
               byte[] entryBytes = toByteArray(entry.getStream(), entry.length());
-              assertTrue(Arrays.equals(attach.getFileData(), entryBytes));
+              Assert.assertTrue(Arrays.equals(attach.getFileData(), entryBytes));
             } else {
 
               if("test_word.doc".equals(name)) {
@@ -230,7 +229,7 @@ public class OleBlobTest extends TestCase
           case OTHER:
             OleBlob.OtherContent oc = (OleBlob.OtherContent)content;
             byte[] otherBytes = toByteArray(oc.getStream(), oc.length());
-            assertTrue(Arrays.equals(attach.getFileData(), otherBytes));
+            Assert.assertTrue(Arrays.equals(attach.getFileData(), otherBytes));
             break;
 
           default:
@@ -255,8 +254,8 @@ public class OleBlobTest extends TestCase
       String entryName = (String)entryInfo[idx];
       int entryLen = (Integer)entryInfo[idx + 1];
 
-      assertEquals(entryName, e.getName());
-      assertEquals(entryLen, e.length());
+      Assert.assertEquals(entryName, e.getName());
+      Assert.assertEquals(entryLen, e.length());
 
       idx += 2;
     }
@@ -288,7 +287,7 @@ public class OleBlobTest extends TestCase
                                           attachE.getSize());
         byte[] entryBytes = toByteArray(e.getStream(), e.length());
 
-        assertTrue(Arrays.equals(attachEBytes, entryBytes));
+        Assert.assertTrue(Arrays.equals(attachEBytes, entryBytes));
       }
 
       ByteUtil.closeQuietly(attachFs);

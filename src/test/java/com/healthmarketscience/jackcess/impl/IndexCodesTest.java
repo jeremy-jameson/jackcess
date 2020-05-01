@@ -26,6 +26,10 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.CursorBuilder;
@@ -36,13 +40,12 @@ import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  * @author James Ahlborn
  */
-public class IndexCodesTest extends TestCase {
+public class IndexCodesTest {
 
   private static final Map<Character,String> SPECIAL_CHARS =
     new HashMap<Character,String>();
@@ -57,10 +60,7 @@ public class IndexCodesTest extends TestCase {
     SPECIAL_CHARS.put('\\', "\\\\");
   }
 
-  public IndexCodesTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testIndexCodes() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.INDEX_CODES, true)) {
@@ -126,7 +126,7 @@ public class IndexCodesTest extends TestCase {
       if(expectedRow.equals(row)) {
         // verify that the entries are indeed equal
         Cursor.Position curPos = cursor.getSavepoint().getCurrentPosition();
-        assertEquals(entryToString(expectedPos), entryToString(curPos));
+        Assert.assertEquals(entryToString(expectedPos), entryToString(curPos));
         return;
       }
     }
@@ -147,7 +147,7 @@ public class IndexCodesTest extends TestCase {
       }
     }
 
-    fail("testDB: " + testDB + ";\nCould not find expected row " + expectedRow + " starting at " +
+    Assert.fail("testDB: " + testDB + ";\nCould not find expected row " + expectedRow + " starting at " +
          entryToString(startPos));
   }
 
@@ -158,10 +158,13 @@ public class IndexCodesTest extends TestCase {
   //
   //////
 
+  @Test
   public void testNothing() throws Exception {
     // keep this so build doesn't fail if other tests are disabled
   }
 
+  // @Ignore
+  // @Test
   public void x_testCreateIsoFile() throws Exception
   {
     Database db = create(Database.FileFormat.V2000, true);
@@ -179,6 +182,8 @@ public class IndexCodesTest extends TestCase {
     db.close();
   }
 
+  // @Ignore
+  // @Test
   public void x_testCreateAltIsoFile() throws Exception
   {
     Database db = openCopy(Database.FileFormat.V2000, new File("/tmp/test_ind.mdb"), true);
@@ -195,6 +200,8 @@ public class IndexCodesTest extends TestCase {
     db.close();
   }
 
+  // @Ignore
+  // @Test
   public void x_testWriteAllCodesMdb() throws Exception
   {
     Database db = create(Database.FileFormat.V2000, true);
@@ -254,6 +261,8 @@ public class IndexCodesTest extends TestCase {
     db.close();
   }
 
+  // @Ignore
+  // @Test
   public void x_testReadAllCodesMdb() throws Exception
   {
 //     Database db = openCopy(new File("/data2/jackcess_test/testAllIndexCodes.mdb"));
@@ -307,6 +316,8 @@ public class IndexCodesTest extends TestCase {
     }
   }
 
+  // @Ignore
+  // @Test
   public void x_testReadIsoMdb() throws Exception
   {
 //     Database db = open(new File("/tmp/test_ind.mdb"));
@@ -329,6 +340,8 @@ public class IndexCodesTest extends TestCase {
     db.close();
   }
 
+  // @Ignore
+  // @Test
   public void x_testReverseIsoMdb2010() throws Exception
   {
     Database db = open(Database.FileFormat.V2010, new File("/data2/jackcess_test/testAllIndexCodes3_2010.accdb"));
@@ -508,6 +521,8 @@ public class IndexCodesTest extends TestCase {
     db.close();
   }
 
+  // @Ignore
+  // @Test
   public void x_testReverseIsoMdb() throws Exception
   {
     Database db = open(Database.FileFormat.V2000, new File("/data2/jackcess_test/testAllIndexCodes3.mdb"));

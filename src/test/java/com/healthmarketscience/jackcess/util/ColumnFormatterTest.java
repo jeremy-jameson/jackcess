@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.DataType;
@@ -29,7 +32,6 @@ import com.healthmarketscience.jackcess.PropertyMap;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 
@@ -37,9 +39,9 @@ import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
  *
  * @author James Ahlborn
  */
-public class ColumnFormatterTest extends TestCase
+public class ColumnFormatterTest
 {
-
+  @Test
   public void testFormat() throws Exception {
 
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -75,7 +77,7 @@ public class ColumnFormatterTest extends TestCase
         found.add(d3Fmt.getRowValue(r));
       }
 
-      assertEquals(Arrays.asList(
+      Assert.assertEquals(Arrays.asList(
                        "FOxxOBAR", "3.7E+1", "$0.03",
                        "37xx", "4.5E+3", "$4,500.00",
                        "FOxxOBARBAZ", "-3.7E+1", "($37.13)",
@@ -86,9 +88,9 @@ public class ColumnFormatterTest extends TestCase
       d2Fmt.setFormatString(null);
       d3Fmt.setFormatString("General Date");
 
-      assertEquals("Scientific", t.getColumn("data1").getProperties()
+      Assert.assertEquals("Scientific", t.getColumn("data1").getProperties()
                    .getValue(PropertyMap.FORMAT_PROP));
-      assertEquals("General Date", t.getColumn("data3").getProperties()
+      Assert.assertEquals("General Date", t.getColumn("data3").getProperties()
                    .getValue(PropertyMap.FORMAT_PROP));
 
       found = new ArrayList<>();
@@ -98,7 +100,7 @@ public class ColumnFormatterTest extends TestCase
         found.add(d3Fmt.getRowValue(r));
       }
 
-      assertEquals(Arrays.asList(
+      Assert.assertEquals(Arrays.asList(
                        "foobar", "37", "12:43:12 AM",
                        "3.70E+1", "4500", "4/26/1912",
                        "foobarbaz", "-37", "11/23/1899 3:07:12 AM",

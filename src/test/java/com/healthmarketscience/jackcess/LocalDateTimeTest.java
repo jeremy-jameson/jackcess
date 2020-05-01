@@ -31,9 +31,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.impl.ColumnImpl;
 import com.healthmarketscience.jackcess.impl.DatabaseImpl;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 import static com.healthmarketscience.jackcess.Database.*;
@@ -42,12 +44,9 @@ import static com.healthmarketscience.jackcess.Database.*;
  *
  * @author James Ahlborn
  */
-public class LocalDateTimeTest extends TestCase
+public class LocalDateTimeTest
 {
-  public LocalDateTimeTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testWriteAndReadLocalDate() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = createMem(fileFormat);
@@ -101,7 +100,7 @@ public class LocalDateTimeTest extends TestCase
         foundDates.add(row.getLocalDateTime("date"));
       }
 
-      assertEquals(dates.size(), foundDates.size());
+      Assert.assertEquals(dates.size(), foundDates.size());
       for(int i = 0; i < dates.size(); ++i) {
         Date expected = dates.get(i);
         LocalDateTime found = foundDates.get(i);
@@ -112,6 +111,7 @@ public class LocalDateTimeTest extends TestCase
     }
   }
 
+  @Test
   public void testAncientLocalDates() throws Exception
   {
     ZoneId zoneId = ZoneId.of("America/New_York");
@@ -140,7 +140,7 @@ public class LocalDateTimeTest extends TestCase
         foundDates.add(sdf.format(row.getLocalDateTime("date")));
       }
 
-      assertEquals(dates, foundDates);
+      Assert.assertEquals(dates, foundDates);
 
       db.close();
     }
@@ -156,13 +156,14 @@ public class LocalDateTimeTest extends TestCase
         foundDates.add(sdf.format(row.getLocalDateTime("DateField")));
       }
 
-      assertEquals(dates, foundDates);
+      Assert.assertEquals(dates, foundDates);
 
       db.close();
     }
 
   }
 
+  @Test
   public void testZoneId() throws Exception
   {
     ZoneId zoneId = ZoneId.of("America/New_York");
@@ -205,12 +206,13 @@ public class LocalDateTimeTest extends TestCase
           col.toDateDouble(curDate));
       if(!curLdt.equals(newLdt)) {
         System.out.println("FOO " + curLdt + " " + newLdt);
-        assertEquals(sdf.format(curLdt), sdf.format(newLdt));
+        Assert.assertEquals(sdf.format(curLdt), sdf.format(newLdt));
       }
       curCal.add(Calendar.MINUTE, 30);
     }
   }
 
+  @Test
   public void testWriteAndReadTemporals() throws Exception {
     ZoneId zoneId = ZoneId.of("America/New_York");
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -266,7 +268,7 @@ public class LocalDateTimeTest extends TestCase
         foundDates.add(row.getLocalDateTime("date"));
       }
 
-      assertEquals(expected, foundDates);
+      Assert.assertEquals(expected, foundDates);
 
       db.close();
     }

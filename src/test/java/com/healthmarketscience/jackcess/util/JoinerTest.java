@@ -24,25 +24,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.Index;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.impl.RowImpl;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  *
  * @author James Ahlborn
  */
-public class JoinerTest extends TestCase {
+public class JoinerTest {
 
-  public JoinerTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testJoiner() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.INDEX)) {
@@ -56,24 +55,24 @@ public class JoinerTest extends TestCase {
       Index t1t3 = t1.getIndex("Table3Table1");
 
       Index t2t1 = t1t2.getReferencedIndex();
-      assertSame(t2, t2t1.getTable());
+      Assert.assertSame(t2, t2t1.getTable());
       Joiner t2t1Join = Joiner.create(t2t1);
 
-      assertSame(t2, t2t1Join.getFromTable());
-      assertSame(t2t1, t2t1Join.getFromIndex());
-      assertSame(t1, t2t1Join.getToTable());
-      assertSame(t1t2, t2t1Join.getToIndex());
+      Assert.assertSame(t2, t2t1Join.getFromTable());
+      Assert.assertSame(t2t1, t2t1Join.getFromIndex());
+      Assert.assertSame(t1, t2t1Join.getToTable());
+      Assert.assertSame(t1t2, t2t1Join.getToIndex());
       
       doTestJoiner(t2t1Join, createT2T1Data());
       
       Index t3t1 = t1t3.getReferencedIndex();
-      assertSame(t3, t3t1.getTable());
+      Assert.assertSame(t3, t3t1.getTable());
       Joiner t3t1Join = Joiner.create(t3t1);
 
-      assertSame(t3, t3t1Join.getFromTable());
-      assertSame(t3t1, t3t1Join.getFromIndex());
-      assertSame(t1, t3t1Join.getToTable());
-      assertSame(t1t3, t3t1Join.getToIndex());
+      Assert.assertSame(t3, t3t1Join.getFromTable());
+      Assert.assertSame(t3t1, t3t1Join.getFromIndex());
+      Assert.assertSame(t1, t3t1Join.getToTable());
+      Assert.assertSame(t1t3, t3t1Join.getToIndex());
       
       doTestJoiner(t3t1Join, createT3T1Data());      
 
@@ -99,16 +98,16 @@ public class JoinerTest extends TestCase {
       }
 
       List<Row> expectedRows = expectedData.get(id);
-      assertEquals(expectedData.get(id), joinedRows);
+      Assert.assertEquals(expectedData.get(id), joinedRows);
 
       if(!expectedRows.isEmpty()) {
-        assertTrue(join.hasRows(row));
-        assertEquals(expectedRows.get(0), join.findFirstRow(row));
+        Assert.assertTrue(join.hasRows(row));
+        Assert.assertEquals(expectedRows.get(0), join.findFirstRow(row));
 
-        assertEquals(row, revJoin.findFirstRow(expectedRows.get(0)));
+        Assert.assertEquals(row, revJoin.findFirstRow(expectedRows.get(0)));
       } else {
-        assertFalse(join.hasRows(row));
-        assertNull(join.findFirstRow(row));
+        Assert.assertFalse(join.hasRows(row));
+        Assert.assertNull(join.findFirstRow(row));
       }
       
       List<Row> expectedRows2 = new ArrayList<Row>();
@@ -123,31 +122,31 @@ public class JoinerTest extends TestCase {
         joinedRows.add(t1Row);
       }
 
-      assertEquals(expectedRows2, joinedRows);
+      Assert.assertEquals(expectedRows2, joinedRows);
 
       if(!expectedRows2.isEmpty()) {
-        assertEquals(expectedRows2.get(0), join.findFirstRow(row, colNames));
+        Assert.assertEquals(expectedRows2.get(0), join.findFirstRow(row, colNames));
       } else {
-        assertNull(join.findFirstRow(row, colNames));
+        Assert.assertNull(join.findFirstRow(row, colNames));
       }      
     }
   }
 
   private static void doTestJoinerDelete(Joiner t2t1Join) throws Exception
   {
-    assertEquals(4, countRows(t2t1Join.getToTable()));
+    Assert.assertEquals(4, countRows(t2t1Join.getToTable()));
 
     Row row = createExpectedRow("id", 1);
-    assertTrue(t2t1Join.hasRows(row));
+    Assert.assertTrue(t2t1Join.hasRows(row));
 
-    assertTrue(t2t1Join.deleteRows(row));
+    Assert.assertTrue(t2t1Join.deleteRows(row));
 
-    assertFalse(t2t1Join.hasRows(row));
-    assertFalse(t2t1Join.deleteRows(row));
+    Assert.assertFalse(t2t1Join.hasRows(row));
+    Assert.assertFalse(t2t1Join.deleteRows(row));
 
-    assertEquals(2, countRows(t2t1Join.getToTable()));
+    Assert.assertEquals(2, countRows(t2t1Join.getToTable()));
     for(Row t1Row : t2t1Join.getToTable()) {
-      assertFalse(t1Row.get("otherfk1").equals(1));
+      Assert.assertFalse(t1Row.get("otherfk1").equals(1));
     }
   }
 

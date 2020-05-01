@@ -24,6 +24,9 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.DataType;
@@ -34,14 +37,13 @@ import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
-import junit.framework.TestCase;
 import com.healthmarketscience.jackcess.TestUtil;
 
 /**
  *
  * @author James Ahlborn
  */
-public class CodecHandlerTest extends TestCase
+public class CodecHandlerTest
 {
   private static final CodecProvider SIMPLE_PROVIDER = new CodecProvider() {
     public CodecHandler createHandler(PageChannel channel, Charset charset)
@@ -58,11 +60,7 @@ public class CodecHandlerTest extends TestCase
     }
   };
 
-
-  public CodecHandlerTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testCodecHandler() throws Exception
   {
     doTestCodecHandler(true);
@@ -150,8 +148,8 @@ public class CodecHandlerTest extends TestCase
         ((DatabaseImpl)db).getPageChannel().finishWrite();
       }
 
-      assertEquals(100, t1rows);
-      assertEquals(100, t2rows);
+      Assert.assertEquals(100, t1rows);
+      Assert.assertEquals(100, t2rows);
   }
 
   private static void checkRow(Row row)
@@ -159,8 +157,8 @@ public class CodecHandlerTest extends TestCase
     int id = row.getInt("id");
     String value = row.getString("data");
     String valuePrefix = "rowdata-" + id;
-    assertTrue(value.startsWith(valuePrefix));
-    assertEquals(valuePrefix.length() + 100, value.length());
+    Assert.assertTrue(value.startsWith(valuePrefix));
+    Assert.assertEquals(valuePrefix.length() + 100, value.length());
   }
 
   private static void encodeFile(File dbFile, int pageSize, boolean simple)
@@ -289,8 +287,8 @@ public class CodecHandlerTest extends TestCase
                                  int pageOffset)
       throws IOException
     {
-      assertEquals(0, pageOffset);
-      assertEquals(_channel.getFormat().PAGE_SIZE, page.limit());
+      Assert.assertEquals(0, pageOffset);
+      Assert.assertEquals(_channel.getFormat().PAGE_SIZE, page.limit());
 
       ByteBuffer bb = _bufH.getPageBuffer(_channel);
       bb.clear();

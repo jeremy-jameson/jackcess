@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 import com.healthmarketscience.jackcess.impl.TableImpl;
@@ -30,12 +31,9 @@ import static com.healthmarketscience.jackcess.TestUtil.*;
 /**
  * @author james
  */
-public class BigIndexTest extends TestCase {
+public class BigIndexTest {
 
-  public BigIndexTest(String name) {
-    super(name);
-  }
-  
+  @Test
   public void testComplexIndex() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.COMP_INDEX, true)) {
@@ -43,13 +41,14 @@ public class BigIndexTest extends TestCase {
       Database db = openMem(testDB);
       TableImpl t = (TableImpl)db.getTable("Table1");
       IndexImpl index = t.getIndex("CD_AGENTE");
-      assertFalse(index.isInitialized());
-      assertEquals(512, countRows(t));
-      assertEquals(512, index.getIndexData().getEntryCount());
+      Assert.assertFalse(index.isInitialized());
+      Assert.assertEquals(512, countRows(t));
+      Assert.assertEquals(512, index.getIndexData().getEntryCount());
       db.close();
     }
   }
 
+  @Test
   public void testBigIndex() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.BIG_INDEX)) {
@@ -57,9 +56,9 @@ public class BigIndexTest extends TestCase {
       Database db = openMem(testDB);
       TableImpl t = (TableImpl)db.getTable("Table1");
       IndexImpl index = t.getIndex("col1");
-      assertFalse(index.isInitialized());
-      assertEquals(0, countRows(t));
-      assertEquals(0, index.getIndexData().getEntryCount());
+      Assert.assertFalse(index.isInitialized());
+      Assert.assertEquals(0, countRows(t));
+      Assert.assertEquals(0, index.getIndexData().getEntryCount());
       db.close();
 
       TestUtil.setTestAutoSync(false);
@@ -119,7 +118,7 @@ public class BigIndexTest extends TestCase {
           if(val == null) {
             val = firstValue;
           }
-          assertTrue("" + prevValue + " <= " + val + " " + rowCount,
+          Assert.assertTrue("" + prevValue + " <= " + val + " " + rowCount,
                      prevValue.compareTo(val) <= 0);
           if(firstTwo.size() < 2) {
             firstTwo.add(origVal);
@@ -128,14 +127,14 @@ public class BigIndexTest extends TestCase {
           ++rowCount;
         }
 
-        assertEquals(2000, rowCount);
+        Assert.assertEquals(2000, rowCount);
 
         index.getIndexData().validate();
 
         // delete an entry in the middle
         Cursor cursor = CursorBuilder.createCursor(index);
         for(int i = 0; i < (rowCount / 2); ++i) {
-          assertTrue(cursor.moveToNextRow());
+          Assert.assertTrue(cursor.moveToNextRow());
         }
         cursor.deleteCurrentRow();
         --rowCount;
@@ -143,7 +142,7 @@ public class BigIndexTest extends TestCase {
         // remove all but the first two entries (from the end)
         cursor.afterLast();
         for(int i = 0; i < (rowCount - 2); ++i) {
-          assertTrue(cursor.moveToPreviousRow());
+          Assert.assertTrue(cursor.moveToPreviousRow());
           cursor.deleteCurrentRow();
         }
 
@@ -154,17 +153,17 @@ public class BigIndexTest extends TestCase {
           found.add(row.getString("col1"));
         }
 
-        assertEquals(firstTwo, found);
+        Assert.assertEquals(firstTwo, found);
 
         // remove remaining entries
         cursor = CursorBuilder.createCursor(t);
         for(int i = 0; i < 2; ++i) {
-          assertTrue(cursor.moveToNextRow());
+          Assert.assertTrue(cursor.moveToNextRow());
           cursor.deleteCurrentRow();
         }
 
-        assertFalse(cursor.moveToNextRow());
-        assertFalse(cursor.moveToPreviousRow());
+        Assert.assertFalse(cursor.moveToNextRow());
+        Assert.assertFalse(cursor.moveToPreviousRow());
 
         index.getIndexData().validate();
 

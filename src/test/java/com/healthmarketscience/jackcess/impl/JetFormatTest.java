@@ -12,12 +12,14 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.DataType;
 import com.healthmarketscience.jackcess.Database;
 import static com.healthmarketscience.jackcess.Database.*;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.PropertyMap;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 
@@ -26,7 +28,7 @@ import static com.healthmarketscience.jackcess.TestUtil.*;
  *         Date: Mar 5, 2010
  *         Time: 12:44:21 PM
  */
-public class JetFormatTest extends TestCase {
+public class JetFormatTest {
 
   public static final File DIR_TEST_DATA = new File("src/test/data");
 
@@ -198,11 +200,11 @@ public class JetFormatTest extends TestCase {
   public static final List<TestDB> SUPPORTED_DBS_TEST_FOR_READ =
     TestDB.getSupportedForBasename(Basename.TEST, true);
 
-
+  @Test
   public void testGetFormat() throws Exception {
     try {
       JetFormat.getFormat(null);
-      fail("npe");
+      Assert.fail("npe");
     } catch (NullPointerException e) {
       // success
     }
@@ -214,7 +216,7 @@ public class JetFormatTest extends TestCase {
       try {
 
         JetFormat fmtActual = JetFormat.getFormat(channel);
-        assertEquals("Unexpected JetFormat for dbFile: " +
+        Assert.assertEquals("Unexpected JetFormat for dbFile: " +
                      testDB.dbFile.getAbsolutePath(),
                      testDB.getExpectedFormat(), fmtActual);
 
@@ -225,6 +227,7 @@ public class JetFormatTest extends TestCase {
     }
   }
 
+  @Test
   public void testReadOnlyFormat() throws Exception {
 
     for (final TestDB testDB : SUPPORTED_DBS_TEST_FOR_READ) {
@@ -249,14 +252,15 @@ public class JetFormatTest extends TestCase {
       }
 
       if(!testDB.getExpectedFormat().READ_ONLY) {
-        assertNull(failure);
+        Assert.assertNull(failure);
       } else {
-        assertTrue(failure instanceof NonWritableChannelException);
+        Assert.assertTrue(failure instanceof NonWritableChannelException);
       }
 
     }
   }
 
+  @Test
   public void testFileFormat() throws Exception {
 
     for (final TestDB testDB : SUPPORTED_DBS_TEST_FOR_READ) {
@@ -264,7 +268,7 @@ public class JetFormatTest extends TestCase {
       Database db = null;
       try {
         db = open(testDB);
-        assertEquals(testDB.getExpectedFileFormat(), db.getFileFormat());
+        Assert.assertEquals(testDB.getExpectedFileFormat(), db.getFileFormat());
       } finally {
         if(db != null) {
           db.close();
@@ -276,7 +280,7 @@ public class JetFormatTest extends TestCase {
     try {
       db = open(Database.FileFormat.GENERIC_JET4,
                 new File(DIR_TEST_DATA, "adox_jet4.mdb"));
-      assertEquals(Database.FileFormat.GENERIC_JET4, db.getFileFormat());
+      Assert.assertEquals(Database.FileFormat.GENERIC_JET4, db.getFileFormat());
     } finally {
       if(db != null) {
         db.close();
@@ -284,6 +288,7 @@ public class JetFormatTest extends TestCase {
     }
   }
 
+  @Test
   public void testSqlTypes() throws Exception {
 
     JetFormat v2000 = JetFormat.VERSION_4;
@@ -295,16 +300,16 @@ public class JetFormatTest extends TestCase {
         } catch(SQLException ignored) {}
 
         if(sqlType != null) {
-          assertEquals(dt, DataType.fromSQLType(sqlType));
+          Assert.assertEquals(dt, DataType.fromSQLType(sqlType));
         }
       }
     }
 
-    assertEquals(DataType.LONG, DataType.fromSQLType(java.sql.Types.BIGINT));
-    assertEquals(DataType.BIG_INT, DataType.fromSQLType(
+    Assert.assertEquals(DataType.LONG, DataType.fromSQLType(java.sql.Types.BIGINT));
+    Assert.assertEquals(DataType.BIG_INT, DataType.fromSQLType(
                      java.sql.Types.BIGINT, 0, Database.FileFormat.V2016));
-    assertEquals(java.sql.Types.BIGINT, DataType.BIG_INT.getSQLType());
-    assertEquals(DataType.MEMO, DataType.fromSQLType(
+    Assert.assertEquals(java.sql.Types.BIGINT, DataType.BIG_INT.getSQLType());
+    Assert.assertEquals(DataType.MEMO, DataType.fromSQLType(
                      java.sql.Types.VARCHAR, 1000));
   }
 

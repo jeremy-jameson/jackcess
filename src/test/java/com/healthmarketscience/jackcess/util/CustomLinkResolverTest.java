@@ -20,13 +20,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.DataType;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.Database.FileFormat;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 
@@ -34,13 +36,9 @@ import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
  *
  * @author James Ahlborn
  */
-public class CustomLinkResolverTest extends TestCase
+public class CustomLinkResolverTest
 {
-
-  public CustomLinkResolverTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testCustomLinkResolver() throws Exception {
     for(final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -53,8 +51,8 @@ public class CustomLinkResolverTest extends TestCase
       db.createLinkedTable("Table4", "testFile2.txt", "MissingTable4");
 
       Table t1 = db.getTable("Table1");
-      assertNotNull(t1);
-      assertNotSame(db, t1.getDatabase());
+      Assert.assertNotNull(t1);
+      Assert.assertNotSame(db, t1.getDatabase());
 
       assertTable(createExpectedTable(createExpectedRow("id", 0,
                                                         "data1", "row0"),
@@ -65,8 +63,8 @@ public class CustomLinkResolverTest extends TestCase
                   t1);
 
       Table t2 = db.getTable("Table2");
-      assertNotNull(t2);
-      assertNotSame(db, t2.getDatabase());
+      Assert.assertNotNull(t2);
+      Assert.assertNotSame(db, t2.getDatabase());
 
       assertTable(createExpectedTable(createExpectedRow("id", 3,
                                                         "data2", "row3"),
@@ -76,11 +74,11 @@ public class CustomLinkResolverTest extends TestCase
                                                         "data2", "row5")),
                   t2);
 
-      assertNull(db.getTable("Table4"));
+      Assert.assertNull(db.getTable("Table4"));
 
       try {
         db.getTable("Table3");
-        fail("FileNotFoundException should have been thrown");
+        Assert.fail("FileNotFoundException should have been thrown");
       } catch(FileNotFoundException e) {
         // success
       }
@@ -112,7 +110,7 @@ public class CustomLinkResolverTest extends TestCase
     {
       if("Table1".equals(tableName)) {
 
-        assertEquals("testFile1.txt", customFile);
+        Assert.assertEquals("testFile1.txt", customFile);
         Table t = new TableBuilder(tableName)
           .addColumn(new ColumnBuilder("id", DataType.LONG))
           .addColumn(new ColumnBuilder("data1", DataType.TEXT))
@@ -126,7 +124,7 @@ public class CustomLinkResolverTest extends TestCase
 
       } else if("OtherTable2".equals(tableName)) {
 
-        assertEquals("testFile2.txt", customFile);
+        Assert.assertEquals("testFile2.txt", customFile);
         Table t = new TableBuilder(tableName)
           .addColumn(new ColumnBuilder("id", DataType.LONG))
           .addColumn(new ColumnBuilder("data2", DataType.TEXT))
@@ -140,7 +138,7 @@ public class CustomLinkResolverTest extends TestCase
 
       } else if("Table4".equals(tableName)) {
 
-        assertEquals("testFile2.txt", customFile);
+        Assert.assertEquals("testFile2.txt", customFile);
         return false;
       }
 

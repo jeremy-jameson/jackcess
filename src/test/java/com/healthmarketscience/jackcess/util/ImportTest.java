@@ -28,6 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.DataType;
@@ -36,19 +39,14 @@ import static com.healthmarketscience.jackcess.Database.*;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
 import com.healthmarketscience.jackcess.impl.JetFormatTest;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  *  @author Rob Di Marco
  */
-public class ImportTest extends TestCase
+public class ImportTest
 {
-
-  public ImportTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testImportFromFile() throws Exception
   {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
@@ -62,7 +60,7 @@ public class ImportTest extends TestCase
       for(Column c : t.getColumns()) {
         colNames.add(c.getName());
       }
-      assertEquals(Arrays.asList("Test1", "Test2", "Test3"), colNames);
+      Assert.assertEquals(Arrays.asList("Test1", "Test2", "Test3"), colNames);
 
       List<? extends Map<String, Object>> expectedRows =
         createExpectedTable(
@@ -154,7 +152,7 @@ public class ImportTest extends TestCase
       for(Column c : t.getColumns()) {
         colNames.add(c.getName());
       }
-      assertEquals(Arrays.asList("Test1", "Test2", "Test3"), colNames);
+      Assert.assertEquals(Arrays.asList("Test1", "Test2", "Test3"), colNames);
 
       expectedRows =
         createExpectedTable(
@@ -177,6 +175,7 @@ public class ImportTest extends TestCase
     }
   }
 
+  @Test
   public void testImportFromFileWithOnlyHeaders() throws Exception
   {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
@@ -191,7 +190,7 @@ public class ImportTest extends TestCase
       for(Column c : t.getColumns()) {
         colNames.add(c.getName());
       }
-      assertEquals(Arrays.asList(
+      Assert.assertEquals(Arrays.asList(
                        "RESULT_PHYS_ID", "FIRST", "MIDDLE", "LAST", "OUTLIER",
                        "RANK", "CLAIM_COUNT", "PROCEDURE_COUNT",
                        "WEIGHTED_CLAIM_COUNT", "WEIGHTED_PROCEDURE_COUNT"),
@@ -201,6 +200,7 @@ public class ImportTest extends TestCase
     }
   }
 
+  @Test
   public void testCopySqlHeaders() throws Exception
   {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
@@ -223,43 +223,43 @@ public class ImportTest extends TestCase
 
       Table t = db.getTable("Test1");
       List<? extends Column> columns = t.getColumns();
-      assertEquals(7, columns.size());
+      Assert.assertEquals(7, columns.size());
 
       Column c = columns.get(0);
-      assertEquals("col1", c.getName());
-      assertEquals(DataType.LONG, c.getType());
+      Assert.assertEquals("col1", c.getName());
+      Assert.assertEquals(DataType.LONG, c.getType());
 
       c = columns.get(1);
-      assertEquals("col2", c.getName());
-      assertEquals(DataType.TEXT, c.getType());
-      assertEquals(120, c.getLength());
+      Assert.assertEquals("col2", c.getName());
+      Assert.assertEquals(DataType.TEXT, c.getType());
+      Assert.assertEquals(120, c.getLength());
 
       c = columns.get(2);
-      assertEquals("col3", c.getName());
-      assertEquals(DataType.MEMO, c.getType());
-      assertEquals(0, c.getLength());
+      Assert.assertEquals("col3", c.getName());
+      Assert.assertEquals(DataType.MEMO, c.getType());
+      Assert.assertEquals(0, c.getLength());
 
       c = columns.get(3);
-      assertEquals("col4", c.getName());
-      assertEquals(DataType.BINARY, c.getType());
-      assertEquals(128, c.getLength());
+      Assert.assertEquals("col4", c.getName());
+      Assert.assertEquals(DataType.BINARY, c.getType());
+      Assert.assertEquals(128, c.getLength());
 
       c = columns.get(4);
-      assertEquals("col5", c.getName());
-      assertEquals(DataType.OLE, c.getType());
-      assertEquals(0, c.getLength());
+      Assert.assertEquals("col5", c.getName());
+      Assert.assertEquals(DataType.OLE, c.getType());
+      Assert.assertEquals(0, c.getLength());
 
       c = columns.get(5);
-      assertEquals("col6", c.getName());
-      assertEquals(DataType.NUMERIC, c.getType());
-      assertEquals(17, c.getLength());
-      assertEquals(7, c.getScale());
-      assertEquals(15, c.getPrecision());
+      Assert.assertEquals("col6", c.getName());
+      Assert.assertEquals(DataType.NUMERIC, c.getType());
+      Assert.assertEquals(17, c.getLength());
+      Assert.assertEquals(7, c.getScale());
+      Assert.assertEquals(15, c.getPrecision());
 
       c = columns.get(6);
-      assertEquals("col7", c.getName());
-      assertEquals(DataType.MEMO, c.getType());
-      assertEquals(0, c.getLength());
+      Assert.assertEquals("col7", c.getName());
+      Assert.assertEquals(DataType.MEMO, c.getType());
+      Assert.assertEquals(0, c.getLength());
     }
   }
 

@@ -22,24 +22,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.Database.FileFormat;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 import com.healthmarketscience.jackcess.impl.DatabaseImpl;
 import com.healthmarketscience.jackcess.impl.TableImpl;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  *
  * @author James Ahlborn
  */
-public class TableUpdaterTest extends TestCase
+public class TableUpdaterTest
 {
-
-  public TableUpdaterTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testTableUpdating() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -50,6 +48,7 @@ public class TableUpdaterTest extends TestCase
     }    
   }
 
+  @Test
   public void testTableUpdatingOneToOne() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -60,6 +59,7 @@ public class TableUpdaterTest extends TestCase
     }    
   }
 
+  @Test
   public void testTableUpdatingNoEnforce() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -70,6 +70,7 @@ public class TableUpdaterTest extends TestCase
     }    
   }
 
+  @Test
   public void testTableUpdatingNamedRelationship() throws Exception {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
       Database db = create(fileFormat);
@@ -129,25 +130,25 @@ public class TableUpdaterTest extends TestCase
     Relationship rel = rb.toRelationship(db);
 
     if (relationshipName == null) {
-      assertEquals("TestTableTestTable2", rel.getName());
+      Assert.assertEquals("TestTableTestTable2", rel.getName());
     } else {
-      assertEquals(relationshipName, rel.getName());
+      Assert.assertEquals(relationshipName, rel.getName());
     }
-    assertSame(t1, rel.getFromTable());
-    assertEquals(Arrays.asList(t1.getColumn("id")), rel.getFromColumns());
-    assertSame(t2, rel.getToTable());
-    assertEquals(Arrays.asList(t2.getColumn("id2")), rel.getToColumns());
-    assertEquals(oneToOne, rel.isOneToOne());
-    assertEquals(enforce, rel.hasReferentialIntegrity());
-    assertEquals(enforce, rel.cascadeDeletes());
-    assertFalse(rel.cascadeUpdates());
-    assertEquals(Relationship.JoinType.INNER, rel.getJoinType());
+    Assert.assertSame(t1, rel.getFromTable());
+    Assert.assertEquals(Arrays.asList(t1.getColumn("id")), rel.getFromColumns());
+    Assert.assertSame(t2, rel.getToTable());
+    Assert.assertEquals(Arrays.asList(t2.getColumn("id2")), rel.getToColumns());
+    Assert.assertEquals(oneToOne, rel.isOneToOne());
+    Assert.assertEquals(enforce, rel.hasReferentialIntegrity());
+    Assert.assertEquals(enforce, rel.cascadeDeletes());
+    Assert.assertFalse(rel.cascadeUpdates());
+    Assert.assertEquals(Relationship.JoinType.INNER, rel.getJoinType());
 
-    assertEquals(t1idxs, t1.getIndexes().size());
-    assertEquals(1, ((TableImpl)t1).getIndexDatas().size());
+    Assert.assertEquals(t1idxs, t1.getIndexes().size());
+    Assert.assertEquals(1, ((TableImpl)t1).getIndexDatas().size());
 
-    assertEquals(t2idxs, t2.getIndexes().size());
-    assertEquals((t2idxs > 0 ? 1 : 0), ((TableImpl)t2).getIndexDatas().size());
+    Assert.assertEquals(t2idxs, t2.getIndexes().size());
+    Assert.assertEquals((t2idxs > 0 ? 1 : 0), ((TableImpl)t2).getIndexDatas().size());
 
     ((DatabaseImpl)db).getPageChannel().startWrite();
     try {
@@ -167,7 +168,7 @@ public class TableUpdaterTest extends TestCase
     try {
       t2.addRow(10, "row10", "row-data10");
       if(enforce) {
-        fail("ConstraintViolationException should have been thrown");
+        Assert.fail("ConstraintViolationException should have been thrown");
       } 
     } catch(ConstraintViolationException cv) {
       // success
@@ -179,7 +180,7 @@ public class TableUpdaterTest extends TestCase
    
     int id = 0;
     for(Row r : t1) {
-      assertEquals(id, r.get("id"));
+      Assert.assertEquals(id, r.get("id"));
       ++id;
       if(id == 5) {
         ++id;
@@ -188,7 +189,7 @@ public class TableUpdaterTest extends TestCase
  
     id = 0;
     for(Row r : t2) {
-      assertEquals(id, r.get("id2"));
+      Assert.assertEquals(id, r.get("id2"));
       ++id;
       if(enforce && (id == 5)) {
         ++id;
@@ -196,6 +197,7 @@ public class TableUpdaterTest extends TestCase
     }
   }
 
+  @Test
   public void testInvalidUpdate() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -208,7 +210,7 @@ public class TableUpdaterTest extends TestCase
       try {
         new ColumnBuilder("ID", DataType.TEXT)
           .addToTable(t1);
-        fail("created table with no columns?");
+        Assert.fail("created table with no columns?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -220,7 +222,7 @@ public class TableUpdaterTest extends TestCase
       try {
         new RelationshipBuilder(t1, t2)
           .toRelationship(db);
-        fail("created rel with no columns?");
+        Assert.fail("created rel with no columns?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -229,7 +231,7 @@ public class TableUpdaterTest extends TestCase
         new RelationshipBuilder("TestTable", "TestTable2")
           .addColumns("id", "id")
           .toRelationship(db);
-        fail("created rel with wrong columns?");
+        Assert.fail("created rel with wrong columns?");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -238,6 +240,7 @@ public class TableUpdaterTest extends TestCase
     }    
   }
 
+  @Test
   public void testUpdateLargeTableDef() throws Exception
   {
     for (final FileFormat fileFormat : SUPPORTED_FILEFORMATS) {
@@ -270,7 +273,7 @@ public class TableUpdaterTest extends TestCase
       t.addRow(row.toArray());
 
       t.reset();
-      assertEquals(expectedRowData, t.getNextRow());
+      Assert.assertEquals(expectedRowData, t.getNextRow());
 
       db.close();
     }

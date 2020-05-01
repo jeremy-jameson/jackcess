@@ -21,6 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.CursorBuilder;
@@ -28,20 +31,15 @@ import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  *
  * @author James Ahlborn
  */
-public class FKEnforcerTest extends TestCase
+public class FKEnforcerTest
 {
-
-  public FKEnforcerTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testNoEnforceForeignKeys() throws Exception {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.INDEX)) {
 
@@ -66,6 +64,7 @@ public class FKEnforcerTest extends TestCase
     
   }
 
+  @Test
   public void testEnforceForeignKeys() throws Exception {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.INDEX)) {
 
@@ -76,30 +75,30 @@ public class FKEnforcerTest extends TestCase
 
       try {
         t1.addRow(20, 0, 20, "some data", 20);
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException ignored) {
         // success
-        assertTrue(ignored.getMessage().contains("Table1[otherfk2]"));
+        Assert.assertTrue(ignored.getMessage().contains("Table1[otherfk2]"));
       }
 
       try {
         Cursor c = CursorBuilder.createCursor(t2);
         c.moveToNextRow();
         c.updateCurrentRow(30, "foo30");
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException ignored) {
         // success
-        assertTrue(ignored.getMessage().contains("Table2[id]"));
+        Assert.assertTrue(ignored.getMessage().contains("Table2[id]"));
       }
 
       try {
         Cursor c = CursorBuilder.createCursor(t3);
         c.moveToNextRow();
         c.deleteCurrentRow();
-        fail("IOException should have been thrown");
+        Assert.fail("IOException should have been thrown");
       } catch(IOException ignored) {
         // success
-        assertTrue(ignored.getMessage().contains("Table3[id]"));
+        Assert.assertTrue(ignored.getMessage().contains("Table3[id]"));
       }
 
       t1.addRow(21, null, null, "null fks", null);
@@ -128,7 +127,7 @@ public class FKEnforcerTest extends TestCase
         iter.remove();
       }
 
-      assertEquals(1, t1.getRowCount());
+      Assert.assertEquals(1, t1.getRowCount());
 
       db.close();
     }

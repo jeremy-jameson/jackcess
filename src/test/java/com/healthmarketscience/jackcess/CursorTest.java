@@ -25,6 +25,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeSet;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import static com.healthmarketscience.jackcess.Database.*;
 import com.healthmarketscience.jackcess.impl.ColumnImpl;
 import com.healthmarketscience.jackcess.impl.JetFormatTest;
@@ -35,29 +40,23 @@ import com.healthmarketscience.jackcess.util.CaseInsensitiveColumnMatcher;
 import com.healthmarketscience.jackcess.util.ColumnMatcher;
 import com.healthmarketscience.jackcess.util.RowFilterTest;
 import com.healthmarketscience.jackcess.util.SimpleColumnMatcher;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 
 /**
  * @author James Ahlborn
  */
-public class CursorTest extends TestCase {
+public class CursorTest {
 
   static final List<TestDB> INDEX_CURSOR_DBS =
     TestDB.getSupportedForBasename(Basename.INDEX_CURSOR);
 
-
-  public CursorTest(String name) throws Exception {
-    super(name);
-  }
-
-  @Override
-  protected void setUp() {
+  @Before
+  public void setUp() {
     TestUtil.setTestAutoSync(false);
   }
 
-  @Override
-  protected void tearDown() {
+  @After
+  public void tearDown() {
     TestUtil.clearTestAutoSync();
   }
 
@@ -186,6 +185,7 @@ public class CursorTest extends TestCase {
       .toCursor();
   }
 
+  @Test
   public void testRowId() throws Exception {
     // test special cases
     RowIdImpl rowId1 = new RowIdImpl(1, 2);
@@ -197,11 +197,12 @@ public class CursorTest extends TestCase {
         Arrays.asList(rowId1, rowId2, rowId3, RowIdImpl.FIRST_ROW_ID,
                       RowIdImpl.LAST_ROW_ID)));
 
-    assertEquals(Arrays.asList(RowIdImpl.FIRST_ROW_ID, rowId1, rowId2, rowId3,
+    Assert.assertEquals(Arrays.asList(RowIdImpl.FIRST_ROW_ID, rowId1, rowId2, rowId3,
                                RowIdImpl.LAST_ROW_ID),
                  sortedRowIds);
   }
 
+  @Test
   public void testSimple() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -226,9 +227,10 @@ public class CursorTest extends TestCase {
     for(Map<String, Object> row : cursor) {
       foundRows.add(row);
     }
-    assertEquals(expectedRows, foundRows);
+    Assert.assertEquals(expectedRows, foundRows);
   }
 
+  @Test
   public void testMove() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -252,42 +254,43 @@ public class CursorTest extends TestCase {
 
     List<Map<String, Object>> foundRows =
       new ArrayList<Map<String, Object>>();
-    assertTrue(cursor.isBeforeFirst());
-    assertFalse(cursor.isAfterLast());
+    Assert.assertTrue(cursor.isBeforeFirst());
+    Assert.assertFalse(cursor.isAfterLast());
     foundRows.add(cursor.getNextRow());
-    assertEquals(3, cursor.moveNextRows(3));
-    assertFalse(cursor.isBeforeFirst());
-    assertFalse(cursor.isAfterLast());
+    Assert.assertEquals(3, cursor.moveNextRows(3));
+    Assert.assertFalse(cursor.isBeforeFirst());
+    Assert.assertFalse(cursor.isAfterLast());
 
     Map<String,Object> expectedRow = cursor.getCurrentRow();
     Cursor.Savepoint savepoint = cursor.getSavepoint();
-    assertEquals(2, cursor.movePreviousRows(2));
-    assertEquals(2, cursor.moveNextRows(2));
-    assertTrue(cursor.moveToNextRow());
-    assertTrue(cursor.moveToPreviousRow());
-    assertEquals(expectedRow, cursor.getCurrentRow());
+    Assert.assertEquals(2, cursor.movePreviousRows(2));
+    Assert.assertEquals(2, cursor.moveNextRows(2));
+    Assert.assertTrue(cursor.moveToNextRow());
+    Assert.assertTrue(cursor.moveToPreviousRow());
+    Assert.assertEquals(expectedRow, cursor.getCurrentRow());
 
     while(cursor.moveToNextRow()) {
       foundRows.add(cursor.getCurrentRow());
     }
-    assertEquals(expectedRows, foundRows);
-    assertFalse(cursor.isBeforeFirst());
-    assertTrue(cursor.isAfterLast());
+    Assert.assertEquals(expectedRows, foundRows);
+    Assert.assertFalse(cursor.isBeforeFirst());
+    Assert.assertTrue(cursor.isAfterLast());
 
-    assertEquals(0, cursor.moveNextRows(3));
+    Assert.assertEquals(0, cursor.moveNextRows(3));
 
     cursor.beforeFirst();
-    assertTrue(cursor.isBeforeFirst());
-    assertFalse(cursor.isAfterLast());
+    Assert.assertTrue(cursor.isBeforeFirst());
+    Assert.assertFalse(cursor.isAfterLast());
 
     cursor.afterLast();
-    assertFalse(cursor.isBeforeFirst());
-    assertTrue(cursor.isAfterLast());
+    Assert.assertFalse(cursor.isBeforeFirst());
+    Assert.assertTrue(cursor.isAfterLast());
 
     cursor.restoreSavepoint(savepoint);
-    assertEquals(expectedRow, cursor.getCurrentRow());
+    Assert.assertEquals(expectedRow, cursor.getCurrentRow());
   }
 
+  @Test
   public void testMoveNoReset() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -315,12 +318,12 @@ public class CursorTest extends TestCase {
     iter = cursor.newIterable().reset(false).reverse().iterator();
     iter.next();
     Map<String, Object> row = iter.next();
-    assertEquals(expectedRows.get(4), row);
+    Assert.assertEquals(expectedRows.get(4), row);
 
     iter = cursor.newIterable().reset(false).iterator();
     iter.next();
     row = iter.next();
-    assertEquals(expectedRows.get(5), row);
+    Assert.assertEquals(expectedRows.get(5), row);
     iter.next();
 
     iter = cursor.newIterable().reset(false).iterator();
@@ -328,9 +331,10 @@ public class CursorTest extends TestCase {
       foundRows.add(iter.next());
     }
 
-    assertEquals(expectedRows, foundRows);
+    Assert.assertEquals(expectedRows, foundRows);
   }
 
+  @Test
   public void testSearch() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -347,74 +351,75 @@ public class CursorTest extends TestCase {
                                    Integer... outOfRangeValues)
     throws Exception
   {
-    assertTrue(cursor.findFirstRow(table.getColumn("id"), 3));
-    assertEquals(createExpectedRow("id", 3,
+    Assert.assertTrue(cursor.findFirstRow(table.getColumn("id"), 3));
+    Assert.assertEquals(createExpectedRow("id", 3,
                                    "value", "data" + 3),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(createExpectedRow(
+    Assert.assertTrue(cursor.findFirstRow(createExpectedRow(
                                     "id", 6,
                                     "value", "data" + 6)));
-    assertEquals(createExpectedRow("id", 6,
+    Assert.assertEquals(createExpectedRow("id", 6,
                                    "value", "data" + 6),
                  cursor.getCurrentRow());
 
-    assertFalse(cursor.findFirstRow(createExpectedRow(
+    Assert.assertFalse(cursor.findFirstRow(createExpectedRow(
                                    "id", 8,
                                    "value", "data" + 13)));
-    assertFalse(cursor.findFirstRow(table.getColumn("id"), 13));
-    assertEquals(createExpectedRow("id", 6,
+    Assert.assertFalse(cursor.findFirstRow(table.getColumn("id"), 13));
+    Assert.assertEquals(createExpectedRow("id", 6,
                                    "value", "data" + 6),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(createExpectedRow(
+    Assert.assertTrue(cursor.findFirstRow(createExpectedRow(
                                     "value", "data" + 7)));
-    assertEquals(createExpectedRow("id", 7,
+    Assert.assertEquals(createExpectedRow("id", 7,
                                    "value", "data" + 7),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(table.getColumn("value"), "data" + 4));
-    assertEquals(createExpectedRow("id", 4,
+    Assert.assertTrue(cursor.findFirstRow(table.getColumn("value"), "data" + 4));
+    Assert.assertEquals(createExpectedRow("id", 4,
                                    "value", "data" + 4),
                  cursor.getCurrentRow());
 
     for(Integer outOfRangeValue : outOfRangeValues) {
-      assertFalse(cursor.findFirstRow(table.getColumn("id"),
+      Assert.assertFalse(cursor.findFirstRow(table.getColumn("id"),
                                  outOfRangeValue));
-      assertFalse(cursor.findFirstRow(table.getColumn("value"),
+      Assert.assertFalse(cursor.findFirstRow(table.getColumn("value"),
                                  "data" + outOfRangeValue));
-      assertFalse(cursor.findFirstRow(createExpectedRow(
+      Assert.assertFalse(cursor.findFirstRow(createExpectedRow(
                                      "id", outOfRangeValue,
                                      "value", "data" + outOfRangeValue)));
     }
 
-    assertEquals("data" + 5,
+    Assert.assertEquals("data" + 5,
                  CursorBuilder.findValue(table,
                                   table.getColumn("value"),
                                   table.getColumn("id"), 5));
-    assertEquals(createExpectedRow("id", 5,
+    Assert.assertEquals(createExpectedRow("id", 5,
                                    "value", "data" + 5),
                  CursorBuilder.findRow(table,
                                 createExpectedRow("id", 5)));
     if(index != null) {
-      assertEquals("data" + 5,
+      Assert.assertEquals("data" + 5,
                    CursorBuilder.findValue(index,
                                     table.getColumn("value"),
                                     table.getColumn("id"), 5));
-      assertEquals(createExpectedRow("id", 5,
+      Assert.assertEquals(createExpectedRow("id", 5,
                                      "value", "data" + 5),
                    CursorBuilder.findRow(index,
                                   createExpectedRow("id", 5)));
 
-      assertNull(CursorBuilder.findValue(index,
+      Assert.assertNull(CursorBuilder.findValue(index,
                                   table.getColumn("value"),
                                   table.getColumn("id"),
                                   -17));
-      assertNull(CursorBuilder.findRow(index,
+      Assert.assertNull(CursorBuilder.findRow(index,
                                 createExpectedRow("id", 13)));
     }
   }
 
+  @Test
   public void testReverse() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -441,9 +446,10 @@ public class CursorTest extends TestCase {
     for(Map<String, Object> row : cursor.newIterable().reverse()) {
       foundRows.add(row);
     }
-    assertEquals(expectedRows, foundRows);
+    Assert.assertEquals(expectedRows, foundRows);
   }
 
+  @Test
   public void testLiveAddition() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -466,25 +472,26 @@ public class CursorTest extends TestCase {
     cursor1.moveNextRows(11);
     cursor2.moveNextRows(11);
 
-    assertTrue(cursor1.isAfterLast());
-    assertTrue(cursor2.isAfterLast());
+    Assert.assertTrue(cursor1.isAfterLast());
+    Assert.assertTrue(cursor2.isAfterLast());
 
     table.addRow(newRowNum, "data" + newRowNum);
     Map<String,Object> expectedRow =
       createExpectedRow("id", newRowNum, "value", "data" + newRowNum);
 
-    assertFalse(cursor1.isAfterLast());
-    assertFalse(cursor2.isAfterLast());
+    Assert.assertFalse(cursor1.isAfterLast());
+    Assert.assertFalse(cursor2.isAfterLast());
 
-    assertEquals(expectedRow, cursor1.getCurrentRow());
-    assertEquals(expectedRow, cursor2.getCurrentRow());
-    assertFalse(cursor1.moveToNextRow());
-    assertFalse(cursor2.moveToNextRow());
-    assertTrue(cursor1.isAfterLast());
-    assertTrue(cursor2.isAfterLast());
+    Assert.assertEquals(expectedRow, cursor1.getCurrentRow());
+    Assert.assertEquals(expectedRow, cursor2.getCurrentRow());
+    Assert.assertFalse(cursor1.moveToNextRow());
+    Assert.assertFalse(cursor2.moveToNextRow());
+    Assert.assertTrue(cursor1.isAfterLast());
+    Assert.assertTrue(cursor2.isAfterLast());
   }
 
 
+  @Test
   public void testLiveDeletion() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -508,10 +515,10 @@ public class CursorTest extends TestCase {
           Cursor cursor4,
           int firstValue) throws Exception
   {
-    assertEquals(2, cursor1.moveNextRows(2));
-    assertEquals(3, cursor2.moveNextRows(3));
-    assertEquals(3, cursor3.moveNextRows(3));
-    assertEquals(4, cursor4.moveNextRows(4));
+    Assert.assertEquals(2, cursor1.moveNextRows(2));
+    Assert.assertEquals(3, cursor2.moveNextRows(3));
+    Assert.assertEquals(3, cursor3.moveNextRows(3));
+    Assert.assertEquals(4, cursor4.moveNextRows(4));
 
     Map<String,Object> expectedPrevRow =
       createExpectedRow("id", firstValue, "value", "data" + firstValue);
@@ -522,62 +529,63 @@ public class CursorTest extends TestCase {
     Map<String,Object> expectedNextRow =
       createExpectedRow("id", firstValue, "value", "data" + firstValue);
 
-    assertEquals(expectedDeletedRow, cursor2.getCurrentRow());
-    assertEquals(expectedDeletedRow, cursor3.getCurrentRow());
+    Assert.assertEquals(expectedDeletedRow, cursor2.getCurrentRow());
+    Assert.assertEquals(expectedDeletedRow, cursor3.getCurrentRow());
 
-    assertFalse(cursor2.isCurrentRowDeleted());
-    assertFalse(cursor3.isCurrentRowDeleted());
+    Assert.assertFalse(cursor2.isCurrentRowDeleted());
+    Assert.assertFalse(cursor3.isCurrentRowDeleted());
 
     cursor2.deleteCurrentRow();
 
-    assertTrue(cursor2.isCurrentRowDeleted());
-    assertTrue(cursor3.isCurrentRowDeleted());
+    Assert.assertTrue(cursor2.isCurrentRowDeleted());
+    Assert.assertTrue(cursor3.isCurrentRowDeleted());
 
-    assertEquals(expectedNextRow, cursor1.getNextRow());
-    assertEquals(expectedNextRow, cursor2.getNextRow());
-    assertEquals(expectedNextRow, cursor3.getNextRow());
+    Assert.assertEquals(expectedNextRow, cursor1.getNextRow());
+    Assert.assertEquals(expectedNextRow, cursor2.getNextRow());
+    Assert.assertEquals(expectedNextRow, cursor3.getNextRow());
 
-    assertEquals(expectedPrevRow, cursor3.getPreviousRow());
+    Assert.assertEquals(expectedPrevRow, cursor3.getPreviousRow());
 
-    assertTrue(cursor3.moveToNextRow());
+    Assert.assertTrue(cursor3.moveToNextRow());
     cursor3.deleteCurrentRow();
-    assertTrue(cursor3.isCurrentRowDeleted());
+    Assert.assertTrue(cursor3.isCurrentRowDeleted());
 
     firstValue += 2;
     expectedNextRow =
       createExpectedRow("id", firstValue, "value", "data" + firstValue);
-    assertTrue(cursor3.moveToNextRow());
-    assertEquals(expectedNextRow, cursor3.getNextRow());
+    Assert.assertTrue(cursor3.moveToNextRow());
+    Assert.assertEquals(expectedNextRow, cursor3.getNextRow());
 
     cursor1.beforeFirst();
-    assertTrue(cursor1.moveToNextRow());
+    Assert.assertTrue(cursor1.moveToNextRow());
     cursor1.deleteCurrentRow();
-    assertFalse(cursor1.isBeforeFirst());
-    assertFalse(cursor1.isAfterLast());
-    assertFalse(cursor1.moveToPreviousRow());
-    assertTrue(cursor1.isBeforeFirst());
-    assertFalse(cursor1.isAfterLast());
+    Assert.assertFalse(cursor1.isBeforeFirst());
+    Assert.assertFalse(cursor1.isAfterLast());
+    Assert.assertFalse(cursor1.moveToPreviousRow());
+    Assert.assertTrue(cursor1.isBeforeFirst());
+    Assert.assertFalse(cursor1.isAfterLast());
 
     cursor1.afterLast();
-    assertTrue(cursor1.moveToPreviousRow());
+    Assert.assertTrue(cursor1.moveToPreviousRow());
     cursor1.deleteCurrentRow();
-    assertFalse(cursor1.isBeforeFirst());
-    assertFalse(cursor1.isAfterLast());
-    assertFalse(cursor1.moveToNextRow());
-    assertFalse(cursor1.isBeforeFirst());
-    assertTrue(cursor1.isAfterLast());
+    Assert.assertFalse(cursor1.isBeforeFirst());
+    Assert.assertFalse(cursor1.isAfterLast());
+    Assert.assertFalse(cursor1.moveToNextRow());
+    Assert.assertFalse(cursor1.isBeforeFirst());
+    Assert.assertTrue(cursor1.isAfterLast());
 
     cursor1.beforeFirst();
     while(cursor1.moveToNextRow()) {
       cursor1.deleteCurrentRow();
     }
 
-    assertTrue(cursor1.isAfterLast());
-    assertTrue(cursor2.isCurrentRowDeleted());
-    assertTrue(cursor3.isCurrentRowDeleted());
-    assertTrue(cursor4.isCurrentRowDeleted());
+    Assert.assertTrue(cursor1.isAfterLast());
+    Assert.assertTrue(cursor2.isCurrentRowDeleted());
+    Assert.assertTrue(cursor3.isCurrentRowDeleted());
+    Assert.assertTrue(cursor4.isCurrentRowDeleted());
   }
 
+  @Test
   public void testSimpleIndex() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createTestIndexTable(indexCursorDB);
@@ -594,6 +602,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testMoveIndex() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createTestIndexTable(indexCursorDB);
@@ -607,6 +616,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testReverseIndex() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createTestIndexTable(indexCursorDB);
@@ -620,6 +630,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testSearchIndex() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createTestIndexTable(indexCursorDB);
@@ -633,6 +644,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testLiveAdditionIndex() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createTestIndexTable(indexCursorDB);
@@ -648,6 +660,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testLiveDeletionIndex() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createTestIndexTable(indexCursorDB);
@@ -665,6 +678,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testSimpleIndexSubRange() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       for(int i = 0; i < 2; ++i) {
@@ -685,6 +699,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testMoveIndexSubRange() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       for(int i = 0; i < 2; ++i) {
@@ -705,6 +720,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testSearchIndexSubRange() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       for(int i = 0; i < 2; ++i) {
@@ -722,6 +738,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testReverseIndexSubRange() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       for(int i = 0; i < 2; ++i) {
@@ -742,6 +759,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testLiveAdditionIndexSubRange() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       for(int i = 0; i < 2; ++i) {
@@ -760,6 +778,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testLiveDeletionIndexSubRange() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       for(int i = 0; i < 2; ++i) {
@@ -780,6 +799,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testFindAllIndex() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createDupeTestTable(fileFormat);
@@ -793,6 +813,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testFindAll() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createDupeTestTable(indexCursorDB);
@@ -842,7 +863,7 @@ public class CursorTest extends TestCase {
             createExpectedRow(
                 "id", 8, "value", "data2"));
     }
-    assertEquals(expectedRows, rows);
+    Assert.assertEquals(expectedRows, rows);
 
     Column valCol = table.getColumn("value");
     rows = RowFilterTest.toList(
@@ -863,12 +884,12 @@ public class CursorTest extends TestCase {
             createExpectedRow(
                 "id", 9, "value", "data4"));
     }
-    assertEquals(expectedRows, rows);
+    Assert.assertEquals(expectedRows, rows);
 
     rows = RowFilterTest.toList(
         cursor.newIterable().setMatchPattern(valCol, "data9"));
 
-    assertTrue(rows.isEmpty());
+    Assert.assertTrue(rows.isEmpty());
 
     rows = RowFilterTest.toList(
         cursor.newIterable().setMatchPattern(
@@ -880,7 +901,7 @@ public class CursorTest extends TestCase {
               "id", 8, "value", "data2"),
           createExpectedRow(
               "id", 8, "value", "data3"));
-    assertEquals(expectedRows, rows);
+    Assert.assertEquals(expectedRows, rows);
 
     for(Map<String,Object> row : table) {
 
@@ -891,19 +912,20 @@ public class CursorTest extends TestCase {
         }
       }
       expectedRows = tmpRows;
-      assertFalse(expectedRows.isEmpty());
+      Assert.assertFalse(expectedRows.isEmpty());
 
       rows = RowFilterTest.toList(cursor.newIterable().setMatchPattern(row));
 
-      assertEquals(expectedRows, rows);
+      Assert.assertEquals(expectedRows, rows);
     }
 
     rows = RowFilterTest.toList(
         cursor.newIterable().addMatchPattern("id", 8)
         .addMatchPattern("value", "data13"));
-    assertTrue(rows.isEmpty());
+    Assert.assertTrue(rows.isEmpty());
   }
 
+  @Test
   public void testId() throws Exception
   {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
@@ -923,14 +945,14 @@ public class CursorTest extends TestCase {
 
       try {
         tCursor.restoreSavepoint(iSave);
-        fail("IllegalArgumentException should have been thrown");
+        Assert.fail("IllegalArgumentException should have been thrown");
       } catch(IllegalArgumentException e) {
         // success
       }
 
       try {
         iCursor.restoreSavepoint(tSave);
-        fail("IllegalArgumentException should have been thrown");
+        Assert.fail("IllegalArgumentException should have been thrown");
       } catch(IllegalArgumentException e) {
         // success
       }
@@ -945,6 +967,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testColumnMatcher() throws Exception {
 
 
@@ -968,16 +991,16 @@ public class CursorTest extends TestCase {
                                      boolean caseInsensitive)
     throws Exception
   {
-      assertTrue(columnMatcher.matches(table, "value", null, null));
-      assertFalse(columnMatcher.matches(table, "value", "foo", null));
-      assertFalse(columnMatcher.matches(table, "value", null, "foo"));
-      assertTrue(columnMatcher.matches(table, "value", "foo", "foo"));
-      assertTrue(columnMatcher.matches(table, "value", "foo", "Foo")
+      Assert.assertTrue(columnMatcher.matches(table, "value", null, null));
+      Assert.assertFalse(columnMatcher.matches(table, "value", "foo", null));
+      Assert.assertFalse(columnMatcher.matches(table, "value", null, "foo"));
+      Assert.assertTrue(columnMatcher.matches(table, "value", "foo", "foo"));
+      Assert.assertTrue(columnMatcher.matches(table, "value", "foo", "Foo")
                  == caseInsensitive);
 
-      assertFalse(columnMatcher.matches(table, "value", 13, null));
-      assertFalse(columnMatcher.matches(table, "value", null, 13));
-      assertTrue(columnMatcher.matches(table, "value", 13, 13));
+      Assert.assertFalse(columnMatcher.matches(table, "value", 13, null));
+      Assert.assertFalse(columnMatcher.matches(table, "value", null, 13));
+      Assert.assertTrue(columnMatcher.matches(table, "value", 13, 13));
   }
 
   private static void doTestMatcher(Table table, Cursor cursor,
@@ -987,77 +1010,77 @@ public class CursorTest extends TestCase {
   {
     cursor.setColumnMatcher(columnMatcher);
 
-    assertTrue(cursor.findFirstRow(table.getColumn("id"), 3));
-    assertEquals(createExpectedRow("id", 3,
+    Assert.assertTrue(cursor.findFirstRow(table.getColumn("id"), 3));
+    Assert.assertEquals(createExpectedRow("id", 3,
                                    "value", "data" + 3),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(createExpectedRow(
+    Assert.assertTrue(cursor.findFirstRow(createExpectedRow(
                                     "id", 6,
                                     "value", "data" + 6)));
-    assertEquals(createExpectedRow("id", 6,
+    Assert.assertEquals(createExpectedRow("id", 6,
                                    "value", "data" + 6),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(createExpectedRow(
+    Assert.assertTrue(cursor.findFirstRow(createExpectedRow(
                                     "id", 6,
                                     "value", "Data" + 6)) == caseInsensitive);
     if(caseInsensitive) {
-      assertEquals(createExpectedRow("id", 6,
+      Assert.assertEquals(createExpectedRow("id", 6,
                                      "value", "data" + 6),
                    cursor.getCurrentRow());
     }
 
-    assertFalse(cursor.findFirstRow(createExpectedRow(
+    Assert.assertFalse(cursor.findFirstRow(createExpectedRow(
                                    "id", 8,
                                    "value", "data" + 13)));
-    assertFalse(cursor.findFirstRow(table.getColumn("id"), 13));
-    assertEquals(createExpectedRow("id", 6,
+    Assert.assertFalse(cursor.findFirstRow(table.getColumn("id"), 13));
+    Assert.assertEquals(createExpectedRow("id", 6,
                                    "value", "data" + 6),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(createExpectedRow(
+    Assert.assertTrue(cursor.findFirstRow(createExpectedRow(
                                     "value", "data" + 7)));
-    assertEquals(createExpectedRow("id", 7,
+    Assert.assertEquals(createExpectedRow("id", 7,
                                    "value", "data" + 7),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(createExpectedRow(
+    Assert.assertTrue(cursor.findFirstRow(createExpectedRow(
                                     "value", "Data" + 7)) == caseInsensitive);
     if(caseInsensitive) {
-      assertEquals(createExpectedRow("id", 7,
+      Assert.assertEquals(createExpectedRow("id", 7,
                                      "value", "data" + 7),
                    cursor.getCurrentRow());
     }
 
-    assertTrue(cursor.findFirstRow(table.getColumn("value"), "data" + 4));
-    assertEquals(createExpectedRow("id", 4,
+    Assert.assertTrue(cursor.findFirstRow(table.getColumn("value"), "data" + 4));
+    Assert.assertEquals(createExpectedRow("id", 4,
                                    "value", "data" + 4),
                  cursor.getCurrentRow());
 
-    assertTrue(cursor.findFirstRow(table.getColumn("value"), "Data" + 4)
+    Assert.assertTrue(cursor.findFirstRow(table.getColumn("value"), "Data" + 4)
                == caseInsensitive);
     if(caseInsensitive) {
-      assertEquals(createExpectedRow("id", 4,
+      Assert.assertEquals(createExpectedRow("id", 4,
                                      "value", "data" + 4),
                    cursor.getCurrentRow());
     }
 
-    assertEquals(Arrays.asList(createExpectedRow("id", 4,
+    Assert.assertEquals(Arrays.asList(createExpectedRow("id", 4,
                                                  "value", "data" + 4)),
                  RowFilterTest.toList(
                      cursor.newIterable()
                      .setMatchPattern("value", "data4")
                      .setColumnMatcher(SimpleColumnMatcher.INSTANCE)));
 
-    assertEquals(Arrays.asList(createExpectedRow("id", 3,
+    Assert.assertEquals(Arrays.asList(createExpectedRow("id", 3,
                                                  "value", "data" + 3)),
                  RowFilterTest.toList(
                      cursor.newIterable()
                      .setMatchPattern("value", "DaTa3")
                      .setColumnMatcher(CaseInsensitiveColumnMatcher.INSTANCE)));
 
-    assertEquals(Arrays.asList(createExpectedRow("id", 2,
+    Assert.assertEquals(Arrays.asList(createExpectedRow("id", 2,
                                                  "value", "data" + 2)),
                  RowFilterTest.toList(
                      cursor.newIterable()
@@ -1066,6 +1089,7 @@ public class CursorTest extends TestCase {
                      .setColumnMatcher(CaseInsensitiveColumnMatcher.INSTANCE)));
   }
 
+  @Test
   public void testIndexCursor() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.INDEX, true)) {
@@ -1075,24 +1099,25 @@ public class CursorTest extends TestCase {
       Index idx = t1.getIndex(IndexBuilder.PRIMARY_KEY_NAME);
       IndexCursor cursor = CursorBuilder.createCursor(idx);
 
-      assertFalse(cursor.findFirstRowByEntry(-1));
+      Assert.assertFalse(cursor.findFirstRowByEntry(-1));
       cursor.findClosestRowByEntry(-1);
-      assertEquals(0, cursor.getCurrentRow().get("id"));
+      Assert.assertEquals(0, cursor.getCurrentRow().get("id"));
 
-      assertTrue(cursor.findFirstRowByEntry(1));
-      assertEquals(1, cursor.getCurrentRow().get("id"));
+      Assert.assertTrue(cursor.findFirstRowByEntry(1));
+      Assert.assertEquals(1, cursor.getCurrentRow().get("id"));
 
       cursor.findClosestRowByEntry(2);
-      assertEquals(2, cursor.getCurrentRow().get("id"));
+      Assert.assertEquals(2, cursor.getCurrentRow().get("id"));
 
-      assertFalse(cursor.findFirstRowByEntry(4));
+      Assert.assertFalse(cursor.findFirstRowByEntry(4));
       cursor.findClosestRowByEntry(4);
-      assertTrue(cursor.isAfterLast());
+      Assert.assertTrue(cursor.isAfterLast());
 
       db.close();
     }
   }
 
+  @Test
   public void testIndexCursorDelete() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.INDEX)) {
@@ -1108,7 +1133,7 @@ public class CursorTest extends TestCase {
         expectedData.add(row.getString("data"));
       }
 
-      assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
+      Assert.assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
 
       expectedData = new ArrayList<String>();
       for(Iterator<? extends Row> iter =
@@ -1118,7 +1143,7 @@ public class CursorTest extends TestCase {
         iter.remove();
         try {
           iter.remove();
-          fail("IllegalArgumentException should have been thrown");
+          Assert.fail("IllegalArgumentException should have been thrown");
         } catch(IllegalStateException e) {
           // success
         }
@@ -1126,14 +1151,14 @@ public class CursorTest extends TestCase {
         if(!iter.hasNext()) {
           try {
             iter.next();
-            fail("NoSuchElementException should have been thrown");
+            Assert.fail("NoSuchElementException should have been thrown");
           } catch(NoSuchElementException e) {
             // success
           }
         }
       }
 
-      assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
+      Assert.assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
 
       expectedData = new ArrayList<String>();
       for(Row row : cursor.newEntryIterable(1)
@@ -1141,12 +1166,13 @@ public class CursorTest extends TestCase {
         expectedData.add(row.getString("data"));
       }
 
-      assertTrue(expectedData.isEmpty());
+      Assert.assertTrue(expectedData.isEmpty());
 
       db.close();
     }
   }
 
+  @Test
   public void testCursorDelete() throws Exception
   {
     for (final TestDB testDB : TestDB.getSupportedForBasename(Basename.INDEX)) {
@@ -1163,7 +1189,7 @@ public class CursorTest extends TestCase {
         }
       }
 
-      assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
+      Assert.assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
 
       expectedData = new ArrayList<String>();
       for(Iterator<? extends Row> iter = cursor.iterator();
@@ -1174,7 +1200,7 @@ public class CursorTest extends TestCase {
           iter.remove();
           try {
             iter.remove();
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
           } catch(IllegalStateException e) {
             // success
           }
@@ -1183,14 +1209,14 @@ public class CursorTest extends TestCase {
         if(!iter.hasNext()) {
           try {
             iter.next();
-            fail("NoSuchElementException should have been thrown");
+            Assert.fail("NoSuchElementException should have been thrown");
           } catch(NoSuchElementException e) {
             // success
           }
         }
       }
 
-      assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
+      Assert.assertEquals(Arrays.asList("baz11", "baz11-2"), expectedData);
 
       expectedData = new ArrayList<String>();
       for(Row row : cursor.newIterable().setColumnNames(
@@ -1200,12 +1226,13 @@ public class CursorTest extends TestCase {
         }
       }
 
-      assertTrue(expectedData.isEmpty());
+      Assert.assertTrue(expectedData.isEmpty());
 
       db.close();
     }
   }
 
+  @Test
   public void testFindByRowId() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
       Database db = createTestTable(fileFormat);
@@ -1217,6 +1244,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testFindByRowIdIndex() throws Exception {
     for (final TestDB indexCursorDB : INDEX_CURSOR_DBS) {
       Database db = createTestIndexTable(indexCursorDB);
@@ -1257,25 +1285,26 @@ public class CursorTest extends TestCase {
     throws Exception
   {
     cursor.reset();
-    assertTrue(cursor.findRow(row.getId()));
+    Assert.assertTrue(cursor.findRow(row.getId()));
     Row rFound = cursor.getCurrentRow();
-    assertEquals(id, rFound.get("id"));
-    assertEquals(row, rFound);
+    Assert.assertEquals(id, rFound.get("id"));
+    Assert.assertEquals(row, rFound);
     Cursor.Savepoint save = cursor.getSavepoint();
 
-    assertTrue(cursor.moveToNextRow());
-    assertEquals(id + 1, cursor.getCurrentRow().get("id"));
+    Assert.assertTrue(cursor.moveToNextRow());
+    Assert.assertEquals(id + 1, cursor.getCurrentRow().get("id"));
 
     cursor.restoreSavepoint(save);
 
-    assertTrue(cursor.moveToPreviousRow());
-    assertEquals(id - 1, cursor.getCurrentRow().get("id"));
+    Assert.assertTrue(cursor.moveToPreviousRow());
+    Assert.assertEquals(id - 1, cursor.getCurrentRow().get("id"));
 
-    assertFalse(cursor.findRow(RowIdImpl.FIRST_ROW_ID));
+    Assert.assertFalse(cursor.findRow(RowIdImpl.FIRST_ROW_ID));
 
-    assertEquals(id - 1, cursor.getCurrentRow().get("id"));
+    Assert.assertEquals(id - 1, cursor.getCurrentRow().get("id"));
   }
 
+  @Test
   public void testIterationEarlyExit() throws Exception {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
 
@@ -1307,7 +1336,7 @@ public class CursorTest extends TestCase {
           .addMatchPattern("value", "val-9")
           .addMatchPattern("memo", "anything")
           .iterator().hasNext();
-        fail("RuntimeIOException should have been thrown");
+        Assert.fail("RuntimeIOException should have been thrown");
       } catch(RuntimeIOException ignored) {
         // success
       }
@@ -1319,12 +1348,12 @@ public class CursorTest extends TestCase {
         rows.add(row);
       }
 
-      assertEquals(rows, createExpectedTable(
+      Assert.assertEquals(rows, createExpectedTable(
                        createExpectedRow("id", 11,
                                          "value", "val-5",
                                          "memo", "memo-11")));
 
-      assertFalse(cursor.newIterable()
+      Assert.assertFalse(cursor.newIterable()
                   .addMatchPattern("value", "val-31")
                   .addMatchPattern("memo", "anything")
                   .iterator().hasNext());
@@ -1333,6 +1362,7 @@ public class CursorTest extends TestCase {
     }
   }
 
+  @Test
   public void testPartialIndexFind() throws Exception
   {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
@@ -1350,21 +1380,21 @@ public class CursorTest extends TestCase {
 
       Index idx = t.findIndexForColumns(Arrays.asList("data1"),
                                         TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx3", idx.getName());
+      Assert.assertEquals("idx3", idx.getName());
 
       idx = t.findIndexForColumns(Arrays.asList("data1", "num2"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx3", idx.getName());
+      Assert.assertEquals("idx3", idx.getName());
 
       idx = t.findIndexForColumns(Arrays.asList("data1", "num2", "key3"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx3", idx.getName());
+      Assert.assertEquals("idx3", idx.getName());
 
-      assertNull(t.findIndexForColumns(Arrays.asList("num2"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("num2"),
                                        TableImpl.IndexFeature.ANY_MATCH));
-      assertNull(t.findIndexForColumns(Arrays.asList("data1", "key3"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("data1", "key3"),
                                        TableImpl.IndexFeature.ANY_MATCH));
-      assertNull(t.findIndexForColumns(Arrays.asList("data1"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("data1"),
                                        TableImpl.IndexFeature.EXACT_MATCH));
 
 
@@ -1374,21 +1404,21 @@ public class CursorTest extends TestCase {
 
       idx = t.findIndexForColumns(Arrays.asList("data1"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx2", idx.getName());
+      Assert.assertEquals("idx2", idx.getName());
 
       idx = t.findIndexForColumns(Arrays.asList("data1", "num2"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx2", idx.getName());
+      Assert.assertEquals("idx2", idx.getName());
 
       idx = t.findIndexForColumns(Arrays.asList("data1", "num2", "key3"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx3", idx.getName());
+      Assert.assertEquals("idx3", idx.getName());
 
-      assertNull(t.findIndexForColumns(Arrays.asList("num2"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("num2"),
                                        TableImpl.IndexFeature.ANY_MATCH));
-      assertNull(t.findIndexForColumns(Arrays.asList("data1", "key3"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("data1", "key3"),
                                        TableImpl.IndexFeature.ANY_MATCH));
-      assertNull(t.findIndexForColumns(Arrays.asList("data1"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("data1"),
                                        TableImpl.IndexFeature.EXACT_MATCH));
 
 
@@ -1398,25 +1428,26 @@ public class CursorTest extends TestCase {
 
       idx = t.findIndexForColumns(Arrays.asList("data1"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx1", idx.getName());
+      Assert.assertEquals("idx1", idx.getName());
 
       idx = t.findIndexForColumns(Arrays.asList("data1", "num2"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx2", idx.getName());
+      Assert.assertEquals("idx2", idx.getName());
 
       idx = t.findIndexForColumns(Arrays.asList("data1", "num2", "key3"),
                                   TableImpl.IndexFeature.ANY_MATCH);
-      assertEquals("idx3", idx.getName());
+      Assert.assertEquals("idx3", idx.getName());
 
-      assertNull(t.findIndexForColumns(Arrays.asList("num2"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("num2"),
                                        TableImpl.IndexFeature.ANY_MATCH));
-      assertNull(t.findIndexForColumns(Arrays.asList("data1", "key3"),
+      Assert.assertNull(t.findIndexForColumns(Arrays.asList("data1", "key3"),
                                        TableImpl.IndexFeature.ANY_MATCH));
 
       db.close();
     }
   }
 
+  @Test
   public void testPartialIndexLookup() throws Exception
   {
     for (final FileFormat fileFormat : JetFormatTest.SUPPORTED_FILEFORMATS) {
@@ -1491,7 +1522,7 @@ public class CursorTest extends TestCase {
       } else {
         c.findFirstRowByEntry("C", 4);
       }
-      fail("IllegalArgumentException should have been thrown");
+      Assert.fail("IllegalArgumentException should have been thrown");
     } catch(IllegalArgumentException expected) {
       // scucess
     }
@@ -1537,10 +1568,10 @@ public class CursorTest extends TestCase {
     throws Exception
   {
     if(expectedId != null) {
-      assertTrue(c.findFirstRowByEntry(entry));
-      assertEquals(expectedId, c.getCurrentRow().get("id"));
+      Assert.assertTrue(c.findFirstRowByEntry(entry));
+      Assert.assertEquals(expectedId, c.getCurrentRow().get("id"));
     } else {
-      assertFalse(c.findFirstRowByEntry(entry));
+      Assert.assertFalse(c.findFirstRowByEntry(entry));
     }
   }
 
@@ -1571,7 +1602,7 @@ public class CursorTest extends TestCase {
     for(Row row : c.newEntryIterable(entry)) {
       foundIds.add((Integer)row.get("id"));
     }
-    assertEquals(expectedIds, foundIds);
+    Assert.assertEquals(expectedIds, foundIds);
   }
 
   private static void doFindByRow(Index idx, Integer id, Object... rowPairs)
@@ -1581,9 +1612,9 @@ public class CursorTest extends TestCase {
         rowPairs);
     Row r = CursorBuilder.findRow(idx, map);
     if(id != null) {
-      assertEquals(id, r.get("id"));
+      Assert.assertEquals(id, r.get("id"));
     } else {
-      assertNull(r);
+      Assert.assertNull(r);
     }
   }
 
@@ -1594,9 +1625,9 @@ public class CursorTest extends TestCase {
     Object value = CursorBuilder.findValue(
         idx, idx.getTable().getColumn("id"), columnPattern, valuePattern);
     if(id != null) {
-      assertEquals(id, value);
+      Assert.assertEquals(id, value);
     } else {
-      assertNull(value);
+      Assert.assertNull(value);
     }
   }
 }

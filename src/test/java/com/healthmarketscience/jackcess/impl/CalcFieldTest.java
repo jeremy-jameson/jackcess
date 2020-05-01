@@ -23,6 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.ColumnBuilder;
 import com.healthmarketscience.jackcess.DataType;
@@ -31,7 +34,6 @@ import com.healthmarketscience.jackcess.PropertyMap;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
-import junit.framework.TestCase;
 import static com.healthmarketscience.jackcess.TestUtil.*;
 import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
 
@@ -39,13 +41,9 @@ import static com.healthmarketscience.jackcess.impl.JetFormatTest.*;
  *
  * @author James Ahlborn
  */
-public class CalcFieldTest extends TestCase
+public class CalcFieldTest
 {
-
-  public CalcFieldTest(String name) throws Exception {
-    super(name);
-  }
-
+  @Test
   public void testCreateCalcField() throws Exception {
 
     ColumnBuilder cb = new ColumnBuilder("calc_data", DataType.TEXT)
@@ -53,9 +51,9 @@ public class CalcFieldTest extends TestCase
 
     try {
       cb.validate(JetFormat.VERSION_12);
-      fail("IllegalArgumentException should have been thrown");
+      Assert.fail("IllegalArgumentException should have been thrown");
     } catch(IllegalArgumentException e) {
-      assertTrue(e.getMessage().contains(""));
+      Assert.assertTrue(e.getMessage().contains(""));
     }
 
     cb.validate(JetFormat.VERSION_14);
@@ -86,10 +84,10 @@ public class CalcFieldTest extends TestCase
         .toTable(db);
 
       Column col = t.getColumn("calc_text");
-      assertTrue(col.isCalculated());
-      assertEquals("[id] & \"_\" & [data]", col.getProperties().getValue(
+      Assert.assertTrue(col.isCalculated());
+      Assert.assertEquals("[id] & \"_\" & [data]", col.getProperties().getValue(
                        PropertyMap.EXPRESSION_PROP));
-      assertEquals(DataType.TEXT.getValue(), 
+      Assert.assertEquals(DataType.TEXT.getValue(), 
                    col.getProperties().getValue(
                        PropertyMap.RESULT_TYPE_PROP));
 
@@ -143,6 +141,7 @@ public class CalcFieldTest extends TestCase
     }
   }
 
+  @Test
   public void testReadCalcFields() throws Exception {
 
     for(TestDB testDB : TestDB.getSupportedForBasename(Basename.CALC_FIELD)) {
@@ -160,7 +159,7 @@ public class CalcFieldTest extends TestCase
           "[ID=3, FirstName=John, LastName=Doe, LastFirst=Doe, John, City=Nowhere, LastFirstLen=9, Salary=0.0000, MonthlySalary=0.0000, IsRich=false, AllNames=Doe, John=Doe, John, WeeklySalary=0, SalaryTest=0.0000, BoolTest=true, Popularity=0.012300, DecimalTest=0.012300, FloatTest=0.0, BigNumTest=0E-8]",
           "[ID=4, FirstName=Test, LastName=User, LastFirst=User, Test, City=Hockessin, LastFirstLen=10, Salary=100.0000, MonthlySalary=8.3333, IsRich=false, AllNames=User, Test=User, Test, WeeklySalary=1.92307692307692, SalaryTest=100.0000, BoolTest=true, Popularity=102030405060.654321, DecimalTest=102030405060.654321, FloatTest=1.27413E-10, BigNumTest=2.787019289824216980830E-7]");
 
-      assertEquals(expectedRows, rows);
+      Assert.assertEquals(expectedRows, rows);
 
       db.close();
     }    
